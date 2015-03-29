@@ -1,7 +1,4 @@
-﻿using System.CodeDom;
-using UnityEngine;
-using System.Collections;
-using System.Collections.Generic;
+﻿using UnityEngine;
 using UnityEngine.UI;
 
 public class UIManager : MonoBehaviour
@@ -20,21 +17,35 @@ public class UIManager : MonoBehaviour
 	void Update () 
     {
 	    ScanForInput();
-	}
+
+        // TODO: READ ABOUT HOW TO READ VALUES FROM UI SLIDER COMPONENT (ON VALUE CHANGE() ? )
+        //       ARRANGE PLACEHOLDER FOR INPUT FIELDS
+        //       CHANGE INPUT FIELD TEXT VALUE AND INTERACTABILITY
+        switch ((int)GetComponentInChildren<Slider>().value)
+	    {
+            case 0:     // beginner settings
+                GM.GetComponent<GameSettings>().Set(9, 9, 10);
+
+	            break;
+
+            case 1:     // intermediate settings
+                GM.GetComponent<GameSettings>().Set(9, 9, 10);
+	            break;
+
+            case 2:     // expert settings
+                GM.GetComponent<GameSettings>().Set(9, 9, 10);
+	            break;
+
+            case 3:     // custom settings
+
+	            break;
+	    }
+	    
+    }
 
     void ScanForInput()
     {
         if (Input.GetKeyDown("escape"))     GM.TogglePauseMenu();
     }
 
-    public void ReadSettings()
-    {
-        int height, width, mines;
-        height = width = mines = 0;
-
-        Debug.Log("UIMANAGER:: H: " + height + " W: " + width + " M: " + mines);
-
-        //GameSettings settings = new GameSettings(9, 9, 10);
-        //return settings;
-    }
 }

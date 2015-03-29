@@ -28,4 +28,11 @@ public class GameSettings : MonoBehaviour
         get { return _mines; }
         set { _mines = value; }
     }
+
+    public void Set(int h, int w, int m)
+    {
+        _height = h;
+        _width = w;
+        _mines = m;
+    }
 }

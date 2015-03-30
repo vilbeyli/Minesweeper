@@ -4,15 +4,19 @@ using UnityEngine.UI;
 public class UIManager : MonoBehaviour
 {
     public GameManager GM;
+    public MusicManager MM;
 
     private InputField _heightInput;
     private InputField _widthInput;
     private InputField _minesInput;
     private Text _sliderHeader;
+    private Slider _musicSlider;
 
 	// Use this for initialization
 	void Start ()
 	{
+        //--------------------------------------------------------------------------
+        // Game Settings Related Code
         // Get the handles manually
         _sliderHeader   = GameObject.Find("Difficulty_Text").GetComponent<Text>();
         _widthInput     = GameObject.Find("Width_Input" ).GetComponent<InputField>();
@@ -25,7 +29,11 @@ public class UIManager : MonoBehaviour
 
         //Debug.Log("UIMANAGER: ON START()");
 
-        SliderUpdate(1);
+        OptionSliderUpdate(1);    // initial update
+
+        //--------------------------------------------------------------------------
+        // Music Settings Related Code
+        _musicSlider = GameObject.Find("Music_Slider").GetComponent<Slider>();
 	}
 	
 	// Update is called once per frame
@@ -39,14 +47,9 @@ public class UIManager : MonoBehaviour
         if (Input.GetKeyDown("escape"))     GM.TogglePauseMenu();
     }
 
-    void WriteSettingsToInputText(GameSettings settings)
-    {
-        _widthInput.text  = settings.Width. ToString();
-        _heightInput.text = settings.Height.ToString();
-        _minesInput.text  = settings.Mines. ToString();
-    }
-
-    public void SliderUpdate(float val)
+    //-----------------------------------------------------------
+    // Game Options Function Definitions
+    public void OptionSliderUpdate(float val)
     {
         int sliderValue = (int) val;    // slider has whole numbers --> safe to cast int
 
@@ -88,5 +91,25 @@ public class UIManager : MonoBehaviour
         _widthInput.interactable = val;
         _heightInput.interactable = val;
         _minesInput.interactable = val;
+    }
+
+    void WriteSettingsToInputText(GameSettings settings)
+    {
+        _widthInput.text = settings.Width.ToString();
+        _heightInput.text = settings.Height.ToString();
+        _minesInput.text = settings.Mines.ToString();
+    }
+
+    //-----------------------------------------------------------
+    // Music Settings Function Definitions
+    public void MusicSliderUpdate(float val)
+    {
+        MM.SetVolume(val);
+    }
+
+    public void MusicToggle(bool val)
+    {
+        _musicSlider.interactable = val;
+        MM.SetVolume(val ? _musicSlider.value : 0f);
     }
 }

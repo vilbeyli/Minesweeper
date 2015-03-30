@@ -5,7 +5,8 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
-    // SERIALIZE FIELD 
+   
+    // SERIALIZE FIELD ???? DOESNT WORK???
     [System.Serializable]
     public class TileOptions
     {
@@ -13,6 +14,7 @@ public class GameManager : MonoBehaviour
         public float b = 0.5f;
         public bool c = false;
     };
+    // ????????????????????????????????????
 
     //----------------------------------------
     // handles

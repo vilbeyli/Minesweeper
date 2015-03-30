@@ -21,7 +21,7 @@ public class Tile : MonoBehaviour
     void OnMouseEnter()
     {
         transform.renderer.material.color = Color.gray;
-        Debug.Log("TILE:: Position: " + gridPosition.x + ", " + gridPosition.y);
+        //Debug.Log("TILE:: Position: " + gridPosition.x + ", " + gridPosition.y);
     }
 
     void OnMouseExit()

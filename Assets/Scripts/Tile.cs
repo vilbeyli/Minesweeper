@@ -3,10 +3,17 @@ using System.Collections;
 
 public class Tile : MonoBehaviour
 {
+    private Vector2 _gridPosition = Vector2.zero;
+    private bool _revealed;
 
-    public Vector2 gridPosition = Vector2.zero;
+    public Vector2 GridPosition
+    {
+        get { return _gridPosition; }
+        set { _gridPosition = value; }
+    }
 
-	// Use this for initialization
+
+    // Use this for initialization
 	void Start () 
     {
 	

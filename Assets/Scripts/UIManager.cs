@@ -53,17 +53,17 @@ public class UIManager : MonoBehaviour
         {
             case 0:     // beginner settings
                 _sliderHeader.text = "Beginner";
-                GM.Settings = GameSettings.beginner;
+                GM.Settings = GameSettings.Beginner;
                 break;
 
             case 1:     // intermediate settings
                 _sliderHeader.text = "Intermediate";
-                GM.Settings = GameSettings.intermediate;
+                GM.Settings = GameSettings.Intermediate;
                 break;
 
             case 2:     // expert settings
                 _sliderHeader.text = "Expert";
-                GM.Settings = GameSettings.expert;
+                GM.Settings = GameSettings.Expert;
                 break;
             case 3:
                 _sliderHeader.text = "Custom";
@@ -87,7 +87,7 @@ public class UIManager : MonoBehaviour
         _minesInput.interactable = isCustom;
     }
 
-    public void ReadCustomSettings()
+    public void ReadSettings()
     {
         int w = System.Int32.Parse(_widthInput.text);
         int h = System.Int32.Parse(_heightInput.text);

@@ -10,12 +10,12 @@ public class GameManager : MonoBehaviour
     public GameObject TilePrefab;
     public GameObject GridPrefab;
     public UIManager UI;
-    public Transform Grid;
 
 
     //-----------------------------------------
     // private variables
-    List<List<Tile>> map = new List<List<Tile>>();
+    private Transform Grid;
+    List<List<Tile>> _map = new List<List<Tile>>();
     public GameSettings Settings { get; set; }
 
     //-----------------------------------------
@@ -23,12 +23,12 @@ public class GameManager : MonoBehaviour
     void Awake()
     {
         Settings = new GameSettings();
-        Settings = GameSettings.intermediate;
+        Settings = GameSettings.Intermediate;
     }
 
     void Start ()
 	{
-        GenerateMap(Settings);
+        StartNewGame();
     }
 
 	void Update ()
@@ -38,7 +38,7 @@ public class GameManager : MonoBehaviour
 
     void GenerateMap(GameSettings settings)
     {
-        map = new List<List<Tile>>();
+        _map = new List<List<Tile>>();
         for (int i = 0; i < settings.Width; i++)
         {
             List<Tile> row = new List<Tile>();
@@ -48,12 +48,12 @@ public class GameManager : MonoBehaviour
                                                     new Vector3(i - Mathf.Floor(settings.Width / 2), 0, -j + Mathf.Floor(settings.Height / 2)), 
                                                     Quaternion.identity
                                                     )).GetComponent<Tile>();
-                tile.gridPosition = new Vector2(i, j);
+                tile.GridPosition = new Vector2(i, j);
                 row.Add(tile);
                 tile.transform.parent = Grid;
             }
 
-            map.Add(row);
+            _map.Add(row);
         }
 
 
@@ -92,14 +92,14 @@ public class GameManager : MonoBehaviour
         Grid = ((GameObject) Instantiate(GridPrefab, new Vector3(0,0,0), Quaternion.identity)).transform;
         
         // build new scene with new settings
-        UI.ReadCustomSettings();    // updates the Settings property
+        UI.ReadSettings();    // updates the Settings property
         GenerateMap(Settings);
     }
 }
 
 
 // SERIALIZE FIELD ???? DOESNT WORK???
-[System.Serializable]
+[Serializable]
 public class TileOptions
 {
     public int a = 0;
@@ -108,13 +108,13 @@ public class TileOptions
 };
 // ????????????????????????????????????
 
-[System.Serializable]
+[Serializable]
 public class GameSettings
 {
     // static constant settings
-    public static readonly GameSettings beginner = new GameSettings(9, 9, 10);
-    public static readonly GameSettings intermediate = new GameSettings(16, 16, 40);
-    public static readonly GameSettings expert = new GameSettings(30, 16, 99);
+    public static readonly GameSettings Beginner = new GameSettings(9, 9, 10);
+    public static readonly GameSettings Intermediate = new GameSettings(16, 16, 40);
+    public static readonly GameSettings Expert = new GameSettings(30, 16, 99);
     
     // fields
     [SerializeField]

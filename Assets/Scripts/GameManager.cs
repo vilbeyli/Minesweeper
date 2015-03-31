@@ -1,21 +1,10 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
    
-    // SERIALIZE FIELD ???? DOESNT WORK???
-    [System.Serializable]
-    public class TileOptions
-    {
-        public int a = 0;
-        public float b = 0.5f;
-        public bool c = false;
-    };
-    // ????????????????????????????????????
-
     //----------------------------------------
     // handles
     public GameObject TilePrefab;
@@ -27,13 +16,19 @@ public class GameManager : MonoBehaviour
     //-----------------------------------------
     // private variables
     List<List<Tile>> map = new List<List<Tile>>();
+    public GameSettings Settings { get; set; }
 
     //-----------------------------------------
     // function definitions
+    void Awake()
+    {
+        Settings = new GameSettings();
+        Settings = GameSettings.intermediate;
+    }
+
     void Start ()
 	{
-        //Debug.Log("GAMEMANAGER:: ON START()");
-        GenerateMap(GetComponent<GameSettings>());
+        GenerateMap(Settings);
     }
 
 	void Update ()
@@ -64,8 +59,8 @@ public class GameManager : MonoBehaviour
 
         Debug.Log("GAMEMANAGER::GENERATEMAP Current Game Settings: H=" + settings.Height
                                                     + " W=" + settings.Width
-                                                    + " M=" + settings.Mines
-                                                     );
+                                                   + " M=" + settings.Mines
+                                                   );
     }
 
     public void TogglePauseMenu()
@@ -97,6 +92,70 @@ public class GameManager : MonoBehaviour
         Grid = ((GameObject) Instantiate(GridPrefab, new Vector3(0,0,0), Quaternion.identity)).transform;
         
         // build new scene with new settings
-        GenerateMap(GetComponent<GameSettings>());
+        UI.ReadCustomSettings();    // updates the Settings property
+        GenerateMap(Settings);
+    }
+}
+
+
+// SERIALIZE FIELD ???? DOESNT WORK???
+[System.Serializable]
+public class TileOptions
+{
+    public int a = 0;
+    public float b = 0.5f;
+    public bool c = false;
+};
+// ????????????????????????????????????
+
+[System.Serializable]
+public class GameSettings
+{
+    // static constant settings
+    public static readonly GameSettings beginner = new GameSettings(9, 9, 10);
+    public static readonly GameSettings intermediate = new GameSettings(16, 16, 40);
+    public static readonly GameSettings expert = new GameSettings(30, 16, 99);
+    
+    // fields
+    [SerializeField]
+    private int _height;
+    [SerializeField]
+    private int _width;
+    [SerializeField]
+    private int _mines;
+
+    public int Height
+    {
+        get { return _height; }
+    }
+
+    public int Width
+    {
+        get { return _width; }
+    }
+
+    public int Mines
+    {
+        get { return _mines; }
+    }
+
+
+    public GameSettings(int w, int h, int m)
+    {
+        _width = w;
+        _height = h;
+        _mines = m;
+    }
+
+    public GameSettings()
+    {
+    }
+
+    // member functions
+    public void Set(int w, int h, int m)
+    {
+        _width = w;
+        _height = h;
+        _mines = m;
     }
 }

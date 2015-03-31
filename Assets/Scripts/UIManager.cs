@@ -12,28 +12,24 @@ public class UIManager : MonoBehaviour
     private Text _sliderHeader;
     private Slider _musicSlider;
 
-	// Use this for initialization
-	void Start ()
-	{
-        //--------------------------------------------------------------------------
-        // Game Settings Related Code
+    void Awake()
+    {
         // Get the handles manually
         _sliderHeader   = GameObject.Find("Difficulty_Text").GetComponent<Text>();
-        _widthInput     = GameObject.Find("Width_Input" ).GetComponent<InputField>();
+        _widthInput     = GameObject.Find("Width_Input").GetComponent<InputField>();
         _heightInput    = GameObject.Find("Height_Input").GetComponent<InputField>();
-        _minesInput     = GameObject.Find("Mines_Input" ).GetComponent<InputField>();
-	    WriteSettingsToInputText(GM.GetComponent<GameSettings>());
+        _minesInput     = GameObject.Find("Mines_Input").GetComponent<InputField>();
+        _musicSlider    = GameObject.Find("Music_Slider").GetComponent<Slider>();
 
-        if(_sliderHeader == null || _widthInput == null || _heightInput == null || _minesInput == null)
+        if (_sliderHeader == null || _widthInput == null || _heightInput == null || _minesInput == null || _musicSlider == null)
             Debug.Log("UIMANAGER:: ERROR! NULL HANDLES!");
+    }
 
-        //Debug.Log("UIMANAGER: ON START()");
-
-        OptionSliderUpdate(1);    // initial update
-
-        //--------------------------------------------------------------------------
-        // Music Settings Related Code
-        _musicSlider = GameObject.Find("Music_Slider").GetComponent<Slider>();
+	// Use this for initialization
+	void Start ()
+    {
+        // initial update
+	    WriteSettingsToInputText(GM.Settings);  
 	}
 	
 	// Update is called once per frame
@@ -53,48 +49,55 @@ public class UIManager : MonoBehaviour
     {
         int sliderValue = (int) val;    // slider has whole numbers --> safe to cast int
 
-        // Custom Settings if sliderValue == 3
-        SetCustomSettings(sliderValue == 3);    // interactability
         switch (sliderValue)
         {
             case 0:     // beginner settings
                 _sliderHeader.text = "Beginner";
-                GM.GetComponent<GameSettings>().Set(GameSettings.beginner);
-                WriteSettingsToInputText(GameSettings.beginner);
+                GM.Settings = GameSettings.beginner;
                 break;
 
             case 1:     // intermediate settings
                 _sliderHeader.text = "Intermediate";
-                GM.GetComponent<GameSettings>().Set(GameSettings.intermediate);
-                WriteSettingsToInputText(GameSettings.intermediate);
+                GM.Settings = GameSettings.intermediate;
                 break;
 
             case 2:     // expert settings
                 _sliderHeader.text = "Expert";
-                GM.GetComponent<GameSettings>().Set(GameSettings.expert);
-                WriteSettingsToInputText(GameSettings.expert);
+                GM.Settings = GameSettings.expert;
                 break;
-
-            case 3:     // custom settings
+            case 3:
                 _sliderHeader.text = "Custom";
                 break;
-            default:
-                Debug.Log("UIMANAGER::SLIDERUPDATE INVALID SLIDER VALUE: " + sliderValue);
-                break;
         }
+
+        WriteSettingsToInputText(GM.Settings);
+
+        // Set Custom Settings according to slider value. Read funct description
+        SetCustomSettings(sliderValue == 3);
 
         //Debug.Log("UIMANAGER::SLIDERUPDATE val=" + sliderValue);
     }
 
-    void SetCustomSettings(bool val)
+    // Sets the interactability of input fields: if(3) true, else false;
+    void SetCustomSettings(bool isCustom)
     {
-        _widthInput.interactable = val;
-        _heightInput.interactable = val;
-        _minesInput.interactable = val;
+        // set interactability
+        _widthInput.interactable = isCustom;
+        _heightInput.interactable = isCustom;
+        _minesInput.interactable = isCustom;
+    }
+
+    public void ReadCustomSettings()
+    {
+        int w = System.Int32.Parse(_widthInput.text);
+        int h = System.Int32.Parse(_heightInput.text);
+        int m = System.Int32.Parse(_minesInput.text);
+        GM.Settings.Set(w, h, m);
     }
 
     void WriteSettingsToInputText(GameSettings settings)
     {
+        if(settings == null) Debug.Log("Settings NULL");
         _widthInput.text = settings.Width.ToString();
         _heightInput.text = settings.Height.ToString();
         _minesInput.text = settings.Mines.ToString();

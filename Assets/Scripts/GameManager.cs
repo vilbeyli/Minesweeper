@@ -14,7 +14,7 @@ public class GameManager : MonoBehaviour
 
     //-----------------------------------------
     // private variables
-    private Transform Grid;
+    private Transform _grid;
     List<List<Tile>> _map = new List<List<Tile>>();
     public GameSettings Settings { get; set; }
 
@@ -36,6 +36,17 @@ public class GameManager : MonoBehaviour
 
 	}
 
+    public void StartNewGame()
+    {
+        // delete current scene & instantiate new grid
+        Destroy(GameObject.Find("Grid(Clone)"));
+        _grid = ((GameObject)Instantiate(GridPrefab, new Vector3(0, 0, 0), Quaternion.identity)).transform;
+
+        // build new scene with new settings
+        UI.ReadSettings();    // updates the Settings property
+        GenerateMap(Settings);
+    }
+
     void GenerateMap(GameSettings settings)
     {
         _map = new List<List<Tile>>();
@@ -50,7 +61,7 @@ public class GameManager : MonoBehaviour
                                                     )).GetComponent<Tile>();
                 tile.GridPosition = new Vector2(i, j);
                 row.Add(tile);
-                tile.transform.parent = Grid;
+                tile.transform.parent = _grid;
             }
 
             _map.Add(row);
@@ -85,16 +96,7 @@ public class GameManager : MonoBehaviour
         Debug.Log("GAMEMANAGER:: TimeScale: " + Time.timeScale);
     }
 
-    public void StartNewGame()
-    {
-        // delete current scene & instantiate new grid
-        Destroy(GameObject.Find("Grid(Clone)"));
-        Grid = ((GameObject) Instantiate(GridPrefab, new Vector3(0,0,0), Quaternion.identity)).transform;
-        
-        // build new scene with new settings
-        UI.ReadSettings();    // updates the Settings property
-        GenerateMap(Settings);
-    }
+    
 }
 
 

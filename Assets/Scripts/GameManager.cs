@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour
@@ -7,19 +6,20 @@ public class GameManager : MonoBehaviour
    
     //----------------------------------------
     // handles
-    public GameObject TilePrefab;
     public GameObject GridPrefab;
     public UIManager UI;
+    private Grid _grid;
 
 
     //-----------------------------------------
     // private variables
-    private Transform _grid;
-    List<List<Tile>> _map = new List<List<Tile>>();
+    private Transform _gridtf;
     public GameSettings Settings { get; set; }
 
     //-----------------------------------------
     // function definitions
+
+    // unity functions
     void Awake()
     {
         Settings = new GameSettings();
@@ -36,43 +36,20 @@ public class GameManager : MonoBehaviour
 
 	}
 
+    // member functions
     public void StartNewGame()
     {
         // delete current scene & instantiate new grid
         Destroy(GameObject.Find("Grid(Clone)"));
-        _grid = ((GameObject)Instantiate(GridPrefab, new Vector3(0, 0, 0), Quaternion.identity)).transform;
+        _gridtf = ((GameObject)Instantiate(GridPrefab, new Vector3(0, 0, 0), Quaternion.identity)).transform;
+        _grid = _gridtf.GetComponent<Grid>();
+        if(_grid == null) Debug.Log("_grid IS NULL!!");
 
         // build new scene with new settings
-        UI.ReadSettings();    // updates the Settings property
-        GenerateMap(Settings);
+        UI.ReadSettings();              // updates the Settings property
+        _grid.GenerateMap(Settings);    // grid manager "_grid" generates the map with given settings
     }
 
-    void GenerateMap(GameSettings settings)
-    {
-        _map = new List<List<Tile>>();
-        for (int i = 0; i < settings.Width; i++)
-        {
-            List<Tile> row = new List<Tile>();
-            for (int j = 0; j < settings.Height; j++)
-            {
-                Tile tile = ((GameObject)Instantiate(TilePrefab,
-                                                    new Vector3(i - Mathf.Floor(settings.Width / 2), 0, -j + Mathf.Floor(settings.Height / 2)), 
-                                                    Quaternion.identity
-                                                    )).GetComponent<Tile>();
-                tile.GridPosition = new Vector2(i, j);
-                row.Add(tile);
-                tile.transform.parent = _grid;
-            }
-
-            _map.Add(row);
-        }
-
-
-        Debug.Log("GAMEMANAGER::GENERATEMAP Current Game Settings: H=" + settings.Height
-                                                    + " W=" + settings.Width
-                                                   + " M=" + settings.Mines
-                                                   );
-    }
 
     public void TogglePauseMenu()
     {
@@ -90,27 +67,29 @@ public class GameManager : MonoBehaviour
         */
 
         // shorter version of the code above
-        Time.timeScale = Convert.ToSingle(UI.GetComponentInChildren<Canvas>().enabled);
+        Time.timeScale = System.Convert.ToSingle(UI.GetComponentInChildren<Canvas>().enabled);
         UI.GetComponentInChildren<Canvas>().enabled = !UI.GetComponentInChildren<Canvas>().enabled;
 
         Debug.Log("GAMEMANAGER:: TimeScale: " + Time.timeScale);
     }
-
-    
+  
 }
 
 
 // SERIALIZE FIELD ???? DOESNT WORK???
-[Serializable]
+[System.Serializable]
 public class TileOptions
 {
-    public int a = 0;
+    [SerializeField]
+    public int a;
+    [SerializeField]
     public float b = 0.5f;
+    [SerializeField]
     public bool c = false;
 };
 // ????????????????????????????????????
 
-[Serializable]
+[System.Serializable]
 public class GameSettings
 {
     // static constant settings

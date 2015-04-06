@@ -1,17 +1,17 @@
 ﻿using UnityEngine;
-using System.Collections;
 using System.Collections.Generic;
 
 public class Grid : MonoBehaviour {
 
     //-------------------------------------------------------------
     // Variable Declarations 
-    private List<List<Tile>> _map = new List<List<Tile>>();
-    private GameSettings _settings;
 
     // handles
     public GameObject TilePrefab;
 
+    // private variables
+    private List<List<Tile>> _map = new List<List<Tile>>();
+    private GameSettings _settings;
 
     //-------------------------------------------------------------
     // Function Definitions
@@ -124,15 +124,43 @@ public class Grid : MonoBehaviour {
         tile.NeighborTilePositions = NeighborPositions;
     }
 
+    public void RevealAllTiles()
+    {
+        foreach (List<Tile> row in _map)
+        {
+            foreach (Tile tile in row)
+                tile.Reveal();
+        }
+
+        Debug.Log("GRID:: Revealed all tiles that are not mines. Unrevealed Tile Count = " + Tile.UnrevealedTileCount);
+    }
+
     public void HighlightArea(Vector2 pos)
     {
         // find the tile from _map by given position vector
         Tile tile = _map[(int)pos.x][(int)pos.y];
 
-        // change color of each neighbor
+        // highlight the tile itself
+        _map[(int)pos.x][(int)pos.y].Highlight();
+
+        // highlight the neighbors of the tile
         foreach (Vector2 _pos in tile.NeighborTilePositions)
-        {
-            _map[(int)_pos.x][(int)_pos.y].renderer.material.color = Color.cyan;
-        }
+            _map[(int)_pos.x][(int)_pos.y].Highlight();
+
+
     }
+
+    public void RevertHighlightArea(Vector2 pos)
+    {
+        // find the tile from _map by given position vector
+        Tile tile = _map[(int) pos.x][(int) pos.y];
+
+        // revert the tile itself
+        _map[(int) pos.x][(int) pos.y].RevertHighlight();
+
+        // revert the neighbors of the tile
+        foreach (Vector2 _pos in tile.NeighborTilePositions)
+            _map[(int)_pos.x][(int)_pos.y].RevertHighlight();
+    }
+
 }

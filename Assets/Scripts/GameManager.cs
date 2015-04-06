@@ -1,23 +1,25 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
    
     //----------------------------------------
+    // Variable Declarations
+
     // handles
     public GameObject GridPrefab;
     public UIManager UI;
     private Grid _grid;
 
-
-    //-----------------------------------------
     // private variables
     private Transform _gridtf;
-    public GameSettings Settings { get; set; }
 
     //-----------------------------------------
-    // function definitions
+    // Function Definitions
+
+    // getters & setters
+    public GameSettings Settings { get; set; }
+
 
     // unity functions
     void Awake()
@@ -36,6 +38,7 @@ public class GameManager : MonoBehaviour
 
 	}
 
+
     // member functions
     public void StartNewGame()
     {
@@ -49,7 +52,6 @@ public class GameManager : MonoBehaviour
         UI.ReadSettings();              // updates the Settings property
         _grid.GenerateMap(Settings);    // grid manager "_grid" generates the map with given settings
     }
-
 
     public void TogglePauseMenu()
     {

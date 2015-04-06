@@ -97,11 +97,15 @@ public class UIManager : MonoBehaviour
 
     void WriteSettingsToInputText(GameSettings settings)
     {
-        if(settings == null) Debug.Log("Settings NULL");
+        if (settings == null)
+        {
+            Debug.Log("Settings NULL");
+            return;
+        }
         _widthInput.text = settings.Width.ToString();
         _heightInput.text = settings.Height.ToString();
         _minesInput.text = settings.Mines.ToString();
-    }
+    } // called from ReadSettings()
 
     //-----------------------------------------------------------
     // Music Settings Function Definitions
@@ -114,5 +118,10 @@ public class UIManager : MonoBehaviour
     {
         _musicSlider.interactable = val;
         MM.SetVolume(val ? _musicSlider.value : 0f);
+    }
+
+    public void RevealTiles()
+    {
+        GameObject.Find("Grid(Clone)").GetComponent<Grid>().RevealAllTiles();
     }
 }

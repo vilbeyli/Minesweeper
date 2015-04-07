@@ -122,6 +122,6 @@ public class UIManager : MonoBehaviour
 
     public void RevealTiles()
     {
-        GameObject.Find("Grid(Clone)").GetComponent<Grid>().RevealAllTiles();
+        GameObject.Find("Grid(Clone)").GetComponent<GridScript>().RevealAllTiles();
     }
 }

@@ -1,7 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 
-public class Grid : MonoBehaviour {
+public class GridScript : MonoBehaviour
+{
 
     //-------------------------------------------------------------
     // Variable Declarations 
@@ -12,6 +13,11 @@ public class Grid : MonoBehaviour {
     // private variables
     private List<List<Tile>> _map = new List<List<Tile>>();
     private GameSettings _settings;
+
+    public List<List<Tile>> Map
+    {
+        get { return _map; }
+    }
 
     //-------------------------------------------------------------
     // Function Definitions
@@ -33,7 +39,7 @@ public class Grid : MonoBehaviour {
                 tile.GridPosition = new Vector2(i, j);
                 row.Add(tile);
                 tile.transform.parent = transform;
-                tile.GetComponent<Tile>().ParentGrid = this;
+                tile.GetComponent<Tile>().Grid = this;
             }
 
             _map.Add(row);
@@ -46,7 +52,6 @@ public class Grid : MonoBehaviour {
 
         PlaceMinesOnTiles();
         UpdateTileValues();
-
     }
 
     void PlaceMinesOnTiles()
@@ -78,15 +83,15 @@ public class Grid : MonoBehaviour {
                 SetNeighbors(tile);
 
                 // if current tile is not a mine
-                if (!tile.IsMine()) 
-                { 
+                if (!tile.IsMine())
+                {
                     // traverse neighbors to update tile value
                     int NearbyMineCount = 0;
                     foreach (Vector2 pos in tile.NeighborTilePositions)
                     {
                         // increment nearby mine count by 1 if a neighbor tile is a mine
-                        Tile _tile = _map[(int) pos.x][(int) pos.y];
-                        if (_tile.IsMine()) 
+                        Tile _tile = _map[(int)pos.x][(int)pos.y];
+                        if (_tile.IsMine())
                             ++NearbyMineCount;
                     }
 
@@ -117,7 +122,7 @@ public class Grid : MonoBehaviour {
             if (pos.x < 0 || pos.x >= _settings.Width || pos.y < 0 || pos.y >= _settings.Height)
             {
                 NeighborPositions.RemoveAt(i);
-            } 
+            }
         }
 
         // set the correct neighbor positions in the given tile
@@ -153,10 +158,10 @@ public class Grid : MonoBehaviour {
     public void RevertHighlightArea(Vector2 pos)
     {
         // find the tile from _map by given position vector
-        Tile tile = _map[(int) pos.x][(int) pos.y];
+        Tile tile = _map[(int)pos.x][(int)pos.y];
 
         // revert the tile itself
-        _map[(int) pos.x][(int) pos.y].RevertHighlight();
+        _map[(int)pos.x][(int)pos.y].RevertHighlight();
 
         // revert the neighbors of the tile
         foreach (Vector2 _pos in tile.NeighborTilePositions)

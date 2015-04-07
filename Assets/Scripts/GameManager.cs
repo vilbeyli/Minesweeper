@@ -9,7 +9,7 @@ public class GameManager : MonoBehaviour
     // handles
     public GameObject GridPrefab;
     public UIManager UI;
-    private Grid _grid;
+    private GridScript _grid;
 
     // private variables
     private Transform _gridtf;
@@ -45,12 +45,15 @@ public class GameManager : MonoBehaviour
         // delete current scene & instantiate new grid
         Destroy(GameObject.Find("Grid(Clone)"));
         _gridtf = ((GameObject)Instantiate(GridPrefab, new Vector3(0, 0, 0), Quaternion.identity)).transform;
-        _grid = _gridtf.GetComponent<Grid>();
+        _grid = _gridtf.GetComponent<GridScript>();
         if(_grid == null) Debug.Log("_grid IS NULL!!");
 
         // build new scene with new settings
         UI.ReadSettings();              // updates the Settings property
         _grid.GenerateMap(Settings);    // grid manager "_grid" generates the map with given settings
+
+        // update handles
+        GetComponent<PlayerInput>().Grid = _grid;
     }
 
     public void TogglePauseMenu()

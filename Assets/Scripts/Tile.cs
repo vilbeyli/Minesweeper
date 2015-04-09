@@ -9,6 +9,12 @@ public class Tile : MonoBehaviour
 
     // static variabels
 
+    // const variables
+    private const int     TILE_FLAGGED = 12;
+    private const int  TILE_UNREVEALED = 11;
+    private const int   TILE_HIGHLIGHT = 10;
+    private const int        TILE_MINE = 9;
+
     // handles
     private GridScript _grid;
     private PlayerInput _playerInput;
@@ -17,7 +23,8 @@ public class Tile : MonoBehaviour
     private Vector2         _gridPosition = Vector2.zero;   // set when GridScript::GenerateMap() is called
     private List<Vector2>   _neighborTilePositions;         // set when GridScript::SetNeighbors() is called
     private bool            _revealed;                      // set when OnMouseOver() is called
-    private int             _tileValue;                     // # mines nearby, -1 if mine is on the tile
+    private int             _tileValue;                     // # mines nearby, 9 if mine is on the tile
+    private bool             _flagged;                      // set when ToggleMine() is called
 
     // public variablesf
     public Material[]       Materials;
@@ -59,7 +66,8 @@ public class Tile : MonoBehaviour
     
     void Start()
     {
-
+        _flagged = false;
+        _revealed = false;
     }
 
     void OnMouseExit()
@@ -77,56 +85,47 @@ public class Tile : MonoBehaviour
     }
 
     // member functions
-    public string Coordinates()
-    {
-        return String.Format("(" + _gridPosition.x + ", " + _gridPosition.y + ")");
-    }
-
     public void Reveal()
     {
+        // state variable
         PlayerInput.InitialClickIssued = true;
+
         if (this.IsMine())
         {
             //TODO: GAME OVER LOGIC
+            Debug.Log("------------  STATE:  GAME OVER  ------------");
         }
         else
         {
-            //_unrevealedTileCount--; //TODO: move it to gridscript, update CONCEAL()
+            //_unrevealedTileCount--; //TODO: move it to gridscript
             _revealed = true;
         }
 
         renderer.material = Materials[_tileValue];
 
-        Debug.Log("TILE:: Reveal Tile " + Coordinates());
+        Debug.Log("TILE:: Reveal Tile " + _gridPosition);
     }
 
     public void Conceal()
     {
+        // TODO: update unrevealiedTileCount in gridscript
         _revealed = false;
-        renderer.material = Materials[11];
+        renderer.material = Materials[TILE_UNREVEALED];
     }
 
     public void PlaceMineOnTile()
     {
-        _tileValue = 9;
-        //Debug.Log("Tile " + Coordinates() + " has Mine on it!");
-    }
-
-    public bool IsMine()
-    {
-        return _tileValue == 9;
+        _tileValue = TILE_MINE;
     }
 
     public void Highlight()
     {
-        if(!_revealed)
-            renderer.material = Materials[10];
+        renderer.material = Materials[TILE_HIGHLIGHT];
     }
 
     public void RevertHighlight()
     {
-        if(!_revealed)
-            renderer.material = Materials[11];
+        renderer.material = Materials[TILE_UNREVEALED];
     }
 
     public bool IsRevealed()
@@ -134,4 +133,19 @@ public class Tile : MonoBehaviour
         return _revealed;
     }
 
+    public bool IsFlagged()
+    {
+        return _flagged;
+    }
+
+    public bool IsMine()
+    {
+        return _tileValue == TILE_MINE;
+    }
+
+    public void ToggleFlag()
+    {
+        _flagged = !_flagged;
+        renderer.material = _flagged ? Materials[TILE_FLAGGED] : Materials[TILE_UNREVEALED];
+    }
 }

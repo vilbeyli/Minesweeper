@@ -11,15 +11,17 @@ public class PlayerInput : MonoBehaviour {
 
     //-------------------------------------
     // Variable Declarations
-    
+
     // static variables
     private static bool _rightAndLeftIssued;
+    public static bool InitialClickIssued;
+    public static bool IsGamePaused; 
 
     // private variables
     private GridScript _grid;
 
-    // public variables
-
+    // handles
+    public UIManager UI;
 
     //--------------------------------------------------------
     // Function Definitions
@@ -32,17 +34,46 @@ public class PlayerInput : MonoBehaviour {
     }
 
     // unity functions
-	void Start () 
-    {
-	
+	void Start ()
+	{
+
 	}
 	
 	void Update () 
     {
-	
+	    ScanForKeyStroke();
 	}
 
+
     // member functions
+    void ScanForKeyStroke()
+    {
+        if (Input.GetKeyDown("escape")) TogglePauseMenu();
+    }
+
+    public void TogglePauseMenu()
+    {
+        /* 
+        if (UI.GetComponentInChildren<Canvas>().enabled)
+        {
+            UI.GetComponentInChildren<Canvas>().enabled = false;
+            Time.timeScale = 1.0f;
+        }
+        else
+        {
+            UI.GetComponentInChildren<Canvas>().enabled = true;
+            Time.timeScale = 0f;
+        }
+        */
+
+        // shorter version of the code above
+        Time.timeScale = System.Convert.ToSingle(UI.GetComponentInChildren<Canvas>().enabled);
+        UI.GetComponentInChildren<Canvas>().enabled = !UI.GetComponentInChildren<Canvas>().enabled;
+        IsGamePaused = UI.GetComponentInChildren<Canvas>().enabled;
+
+        Debug.Log("PLAYERINPUT:: TimeScale: " + Time.timeScale);
+    }
+
     public void OnMouseOver(Vector2 pos)
     {
         Tile tile = _grid.Map[(int)pos.x][(int)pos.y];
@@ -75,7 +106,15 @@ public class PlayerInput : MonoBehaviour {
                     _rightAndLeftIssued = false;
                 else
                 {
-                    Debug.Log("PLAYERINPUT:: Reveal Tile " + tile.Coordinates());
+                    // if the first click is on mine, 
+                    // swap tile properties with a non-mine tile
+                    if (!InitialClickIssued && tile.IsMine())
+                    {
+                        Debug.Log("PLAYERINPUT:: Initial click on mine, swapping with a non mine tile!");
+                        _grid.SwapTileWithMineFreeTile(tile.GridPosition);
+                        tile = _grid.Map[(int) pos.x][(int) pos.y];
+                    }
+                       
                     tile.Reveal();
                 }
 
@@ -132,7 +171,6 @@ public class PlayerInput : MonoBehaviour {
 
         Tile tile = _grid.Map[(int)pos.x][(int)pos.y];
 
-        if (_grid == null) return;
         if (Input.GetMouseButton(0) && Input.GetMouseButton(1))
         {
             _grid.RevertHighlightArea(tile.GridPosition);

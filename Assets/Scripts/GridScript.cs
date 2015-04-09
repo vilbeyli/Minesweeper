@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 
+
 public class GridScript : MonoBehaviour
 {
 
@@ -134,10 +135,25 @@ public class GridScript : MonoBehaviour
         foreach (List<Tile> row in _map)
         {
             foreach (Tile tile in row)
-                tile.Reveal();
+            {
+                if(!tile.IsMine())
+                    tile.Reveal();
+            }
         }
 
-        Debug.Log("GRID:: Revealed all tiles that are not mines. Unrevealed Tile Count = " + Tile.UnrevealedTileCount);
+    }
+
+    public void ConcealAllTiles()
+    {
+        PlayerInput.InitialClickIssued = false;
+
+        foreach (List<Tile> row in _map)
+        {
+            foreach (Tile tile in row)
+                tile.Conceal();
+        }
+
+        //Debug.Log("GRID:: Revealed all tiles that are not mines. Unrevealed Tile Count = " + Tile.UnrevealedTileCount);
     }
 
     public void HighlightArea(Vector2 pos)
@@ -166,6 +182,47 @@ public class GridScript : MonoBehaviour
         // revert the neighbors of the tile
         foreach (Vector2 _pos in tile.NeighborTilePositions)
             _map[(int)_pos.x][(int)_pos.y].RevertHighlight();
+    }
+
+    public void SwapTileWithMineFreeTile(Vector2 pos)
+    {
+        // Find the mine-free tile
+        Vector2 mineFreePos = new Vector2();  // mine free tile position
+        bool found = false;
+        foreach (List<Tile> row in _map)
+        {
+            foreach (Tile tile in row)
+            {
+                if (!tile.IsMine())
+                {
+                    mineFreePos = tile.GridPosition;
+                    found = true;
+                    break;
+                }
+            }
+            if (found) break;
+        }
+
+        int tmp = _map[(int) mineFreePos.x][(int) mineFreePos.y].TileValue;
+        _map[(int) mineFreePos.x][(int) mineFreePos.y].TileValue = _map[(int) pos.x][(int) pos.y].TileValue;
+        _map[(int) pos.x][(int) pos.y].TileValue = tmp;
+
+        UpdateTileValues();
+
+    }
+
+    void Log(string msg, Vector2 pos, Vector2 mineFreePos)
+    {
+        Debug.Log(msg + ":\n"
+            + "_map[" + pos.x + "][" + pos.y + "]: ONCLICK"
+                + "\nGridPos=" + _map[(int)pos.x][(int)pos.y].GridPosition
+                + "\nMine=" + _map[(int)pos.x][(int)pos.y].IsMine()
+                + "\nCoord: " + _map[(int)pos.x][(int)pos.y].transform.position
+           + "\n\n"
+           + "_map[" + mineFreePos.x + "][" + mineFreePos.y + "]: MINE-FREE"
+                + "\nGridPos=" + _map[(int)mineFreePos.x][(int)mineFreePos.y].GridPosition
+                + "\nMine=" + _map[(int)mineFreePos.x][(int)mineFreePos.y].IsMine()
+                + "\nCoord: " + _map[(int)mineFreePos.x][(int)mineFreePos.y].transform.position + "\n");
     }
 
 }

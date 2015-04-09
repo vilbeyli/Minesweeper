@@ -5,7 +5,7 @@ public class GameManager : MonoBehaviour
    
     //----------------------------------------
     // Variable Declarations
-
+    
     // handles
     public GameObject GridPrefab;
     public UIManager UI;
@@ -33,51 +33,27 @@ public class GameManager : MonoBehaviour
         StartNewGame();
     }
 
-	void Update ()
-	{
-
-	}
-
-
     // member functions
     public void StartNewGame()
     {
-        // delete current scene & instantiate new grid
+        // delete current grid in the scene & instantiate new grid
         Destroy(GameObject.Find("Grid(Clone)"));
         _gridtf = ((GameObject)Instantiate(GridPrefab, new Vector3(0, 0, 0), Quaternion.identity)).transform;
         _grid = _gridtf.GetComponent<GridScript>();
         if(_grid == null) Debug.Log("_grid IS NULL!!");
 
         // build new scene with new settings
-        UI.ReadSettings();              // updates the Settings property
+        UI.ReadSettings();              // IMPORTANT! updates the Settings property
         _grid.GenerateMap(Settings);    // grid manager "_grid" generates the map with given settings
+        PlayerInput.InitialClickIssued = false;
 
         // update handles
         GetComponent<PlayerInput>().Grid = _grid;
+
+        // close menu
+        UI.GetComponentInChildren<Canvas>().enabled = false;
+        PlayerInput.IsGamePaused = false;
     }
-
-    public void TogglePauseMenu()
-    {
-        /* 
-        if (UI.GetComponentInChildren<Canvas>().enabled)
-        {
-            UI.GetComponentInChildren<Canvas>().enabled = false;
-            Time.timeScale = 1.0f;
-        }
-        else
-        {
-            UI.GetComponentInChildren<Canvas>().enabled = true;
-            Time.timeScale = 0f;
-        }
-        */
-
-        // shorter version of the code above
-        Time.timeScale = System.Convert.ToSingle(UI.GetComponentInChildren<Canvas>().enabled);
-        UI.GetComponentInChildren<Canvas>().enabled = !UI.GetComponentInChildren<Canvas>().enabled;
-
-        Debug.Log("GAMEMANAGER:: TimeScale: " + Time.timeScale);
-    }
-  
 }
 
 

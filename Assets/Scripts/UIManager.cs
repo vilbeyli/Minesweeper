@@ -31,17 +31,6 @@ public class UIManager : MonoBehaviour
         // initial update
 	    WriteSettingsToInputText(GM.Settings);  
 	}
-	
-	// Update is called once per frame
-	void Update ()
-	{
-	    ScanForKeyStroke();
-    }
-
-    void ScanForKeyStroke()
-    {
-        if (Input.GetKeyDown("escape"))     GM.TogglePauseMenu();
-    }
 
     //-----------------------------------------------------------
     // Game Options Function Definitions
@@ -123,5 +112,10 @@ public class UIManager : MonoBehaviour
     public void RevealTiles()
     {
         GameObject.Find("Grid(Clone)").GetComponent<GridScript>().RevealAllTiles();
+    }
+
+    public void ConcealTiles()
+    {
+        GameObject.Find("Grid(Clone)").GetComponent<GridScript>().ConcealAllTiles();  
     }
 }

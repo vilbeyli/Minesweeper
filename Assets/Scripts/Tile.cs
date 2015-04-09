@@ -8,7 +8,6 @@ public class Tile : MonoBehaviour
     // Variable Declarations 
 
     // static variabels
-    private static int  _unrevealedTileCount;
 
     // handles
     private GridScript _grid;
@@ -50,10 +49,6 @@ public class Tile : MonoBehaviour
             _tileValue = value;
         }
     }
-    public static int UnrevealedTileCount
-    {
-        get { return _unrevealedTileCount; }
-    }
 
 
     // unity functions
@@ -64,19 +59,21 @@ public class Tile : MonoBehaviour
     
     void Start()
     {
-        _unrevealedTileCount++;
+
     }
 
     void OnMouseExit()
     {
         // handle player interaction in PlayerInput script
-        _playerInput.OnMouseExit(_gridPosition);
+        if(!PlayerInput.IsGamePaused)
+            _playerInput.OnMouseExit(_gridPosition);
     }
 
     private void OnMouseOver()
     {
         // handle player interaction in PlayerInput script
-        _playerInput.OnMouseOver(_gridPosition);
+        if (!PlayerInput.IsGamePaused)
+            _playerInput.OnMouseOver(_gridPosition);
     }
 
     // member functions
@@ -87,17 +84,26 @@ public class Tile : MonoBehaviour
 
     public void Reveal()
     {
+        PlayerInput.InitialClickIssued = true;
         if (this.IsMine())
         {
             //TODO: GAME OVER LOGIC
         }
         else
         {
-            _unrevealedTileCount--;
+            //_unrevealedTileCount--; //TODO: move it to gridscript, update CONCEAL()
             _revealed = true;
         }
 
         renderer.material = Materials[_tileValue];
+
+        Debug.Log("TILE:: Reveal Tile " + Coordinates());
+    }
+
+    public void Conceal()
+    {
+        _revealed = false;
+        renderer.material = Materials[11];
     }
 
     public void PlaceMineOnTile()

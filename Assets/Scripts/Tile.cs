@@ -70,22 +70,31 @@ public class Tile : MonoBehaviour
         _revealed = false;
     }
 
+    void Update()
+    {
+       
+    }
+
     void OnMouseExit()
     {
         // handle player interaction in PlayerInput script
         if(!PlayerInput.IsGamePaused)
-            _playerInput.OnMouseExit(_gridPosition);
+            _playerInput.OnMouseExit(this);
     }
 
-    private void OnMouseOver()
+    void OnMouseOver()
     {
         // handle player interaction in PlayerInput script
         if (!PlayerInput.IsGamePaused)
-            _playerInput.OnMouseOver(_gridPosition);
+            _playerInput.OnMouseOver(this);
     }
 
+
+   
+
+
     // member functions
-    public void Reveal()
+    public void Reveal()    
     {
         // state variable
         PlayerInput.InitialClickIssued = true;
@@ -99,12 +108,20 @@ public class Tile : MonoBehaviour
         {
             //_unrevealedTileCount--; //TODO: move it to gridscript
             _revealed = true;
+            if (_tileValue == 0)
+            {
+                foreach (Vector2 pos in _neighborTilePositions)
+                {
+                    Tile neighbor = _grid.Map[(int) pos.x][(int) pos.y];
+                    if (!neighbor.IsRevealed())
+                        neighbor.Reveal();
+                }
+            }
         }
 
         renderer.material = Materials[_tileValue];
 
-        Debug.Log("TILE:: Reveal Tile " + _gridPosition);
-    }
+    } 
 
     public void Conceal()
     {
@@ -141,6 +158,23 @@ public class Tile : MonoBehaviour
     public bool IsMine()
     {
         return _tileValue == TILE_MINE;
+    }
+
+    public bool IsNeighborsFlagged()
+    {
+        int remaining_flags = _tileValue;
+
+        foreach (Vector2 pos in _neighborTilePositions)
+        {
+            Tile neighbor = _grid.Map[(int) pos.x][(int) pos.y];
+            if (neighbor.IsFlagged())
+            {
+                remaining_flags--;
+            }
+        }
+
+        // TODO: CHECK GURKAN IF <= !
+        return remaining_flags == 0;
     }
 
     public void ToggleFlag()

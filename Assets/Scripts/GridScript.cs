@@ -156,19 +156,40 @@ public class GridScript : MonoBehaviour
         //Debug.Log("GRID:: Revealed all tiles that are not mines. Unrevealed Tile Count = " + Tile.UnrevealedTileCount);
     }
 
+    public void RevealArea(Tile tile)
+    {
+        foreach (Vector2 neighborTilePos in tile.NeighborTilePositions)
+        {
+            Tile neighbor = _map[(int) neighborTilePos.x][(int) neighborTilePos.y];
+            if(!neighbor.IsRevealed() && !neighbor.IsFlagged())
+                neighbor.Reveal();
+        }
+
+    }
+
     public void HighlightArea(Vector2 pos)
     {
         // find the tile from _map by given position vector
         Tile tile = _map[(int)pos.x][(int)pos.y];
 
-        // highlight the tile itself
-        _map[(int)pos.x][(int)pos.y].Highlight();
-
         // highlight the neighbors of the tile
         foreach (Vector2 _pos in tile.NeighborTilePositions)
-            _map[(int)_pos.x][(int)_pos.y].Highlight();
+        {
+            Tile neighbor = _map[(int) _pos.x][(int) _pos.y];
+            if (!(neighbor.IsFlagged() || neighbor.IsRevealed()))
+                neighbor.Highlight();
+        }
 
 
+    }
+
+    public void HighlightTile(Vector2 pos)
+    {
+        Tile tile = _map[(int) pos.x][(int) pos.y];
+
+        // highlight the tile itself
+        if (!(tile.IsFlagged() || tile.IsRevealed()))
+            _map[(int)pos.x][(int)pos.y].Highlight();
     }
 
     public void RevertHighlightArea(Vector2 pos)
@@ -176,12 +197,22 @@ public class GridScript : MonoBehaviour
         // find the tile from _map by given position vector
         Tile tile = _map[(int)pos.x][(int)pos.y];
 
-        // revert the tile itself
-        _map[(int)pos.x][(int)pos.y].RevertHighlight();
-
         // revert the neighbors of the tile
         foreach (Vector2 _pos in tile.NeighborTilePositions)
-            _map[(int)_pos.x][(int)_pos.y].RevertHighlight();
+        {
+            Tile neighbor = _map[(int) _pos.x][(int) _pos.y];
+
+            if(!neighbor.IsRevealed() && !neighbor.IsFlagged())
+                neighbor.RevertHighlight();
+        }
+    }
+
+    public void RevertHighlightTile(Vector2 pos)
+    {
+        // revert the tile itself
+        Tile tile = _map[(int)pos.x][(int)pos.y];
+        if(!tile.IsRevealed() && !tile.IsFlagged())
+            tile.RevertHighlight();
     }
 
     public void SwapTileWithMineFreeTile(Vector2 pos)

@@ -13,9 +13,11 @@ public class PlayerInput : MonoBehaviour {
     // Variable Declarations
 
     // static variables
-    private static bool _rightAndLeftIssued;
+    private static bool _rightAndLeftPressed;
+    private static bool _revealAreaIssued;
     public static bool InitialClickIssued;
-    public static bool IsGamePaused; 
+    public static bool IsGamePaused;
+
 
     // private variables
     private GridScript _grid;
@@ -42,9 +44,8 @@ public class PlayerInput : MonoBehaviour {
 	void Update () 
     {
 	    ScanForKeyStroke();
-	}
-
-
+    }
+   
     // member functions
     void ScanForKeyStroke()
     {
@@ -74,106 +75,90 @@ public class PlayerInput : MonoBehaviour {
         Debug.Log("PLAYERINPUT:: TimeScale: " + Time.timeScale);
     }
 
-    public void OnMouseOver(Vector2 pos)
+    public void OnMouseOver(Tile tile)
     {
-        Tile tile = _grid.Map[(int)pos.x][(int)pos.y];
-        
-
-        //------------------------------------------------------------------
-        // Release Events 
-
-        // left click released
-        if (Input.GetMouseButtonUp(0))
+       
+        // RIGHT CLICK: FLAG
+        if (!_revealAreaIssued && Input.GetMouseButtonDown(1))
         {
-            if (Input.GetMouseButton(1)) // if right click is held as well
-            {
-                if (tile.IsRevealed())
-                {
-                    // CARE FLAG LOGIC HERE!!!
-                    Debug.Log("PLAYERINPUT:: Reveal Neightbors of Tile " + tile.Coordinates());
-                }
-                else
-                {
-                    // SAME AS BELOW
-                    Debug.Log("PLAYERINPUT:: Ineffective Simultaneous click(0up) on Unrevealed Tile " + tile.Coordinates());
-                    _grid.RevertHighlightArea(tile.GridPosition);
-                }
-                _rightAndLeftIssued = true;
-            }
-            else // if only left click is released
-            {
-                if (_rightAndLeftIssued)
-                    _rightAndLeftIssued = false;
-                else
-                {
-                    // if the first click is on mine, 
-                    // swap tile properties with a non-mine tile
-                    if (!InitialClickIssued && tile.IsMine())
-                    {
-                        Debug.Log("PLAYERINPUT:: Initial click on mine, swapping with a non mine tile!");
-                        _grid.SwapTileWithMineFreeTile(tile.GridPosition);
-                        tile = _grid.Map[(int) pos.x][(int) pos.y];
-                    }
-                       
-                    tile.Reveal();
-                }
+            if(!Input.GetMouseButton(0) && !tile.IsRevealed())
+                tile.ToggleFlag();
+        }
 
+        // LEFT CLICK: HIGHLIGHT TILE
+        if (Input.GetMouseButton(0))
+        {
+            if(!tile.IsRevealed() && !tile.IsFlagged())
+                _grid.HighlightTile(tile.GridPosition);
+            
+            // LEFT & RIGHT CLICK: HIGHLIGHT AREA
+            if (Input.GetMouseButton(1))
+            {
+                _rightAndLeftPressed = true;
             }
         }
 
-        // right click released
-        if (Input.GetMouseButtonUp(1))
+        // LEFT RELEASE: REVEAL
+        if (Input.GetMouseButtonUp(0) && !_revealAreaIssued)
         {
-            if (Input.GetMouseButton(0)) // if left click is held as well
+            if (!tile.IsFlagged() && !tile.IsRevealed())
             {
-                _rightAndLeftIssued = true;
-                if (tile.IsRevealed())
+                if (!InitialClickIssued && tile.IsMine())
                 {
-                    // CARE FLAG LOGIC HERE!!!
-                    Debug.Log("PLAYERINPUT:: Reveal Neightbors of Tile " + tile.Coordinates());
-                }
-                else
-                {
-                    // SAME AS ABOVE
-                    Debug.Log("PLAYERINPUT:: Ineffective Simultaneous click(1up) on Unrevealed Tile " + tile.Coordinates());
-                    _grid.RevertHighlightArea(tile.GridPosition);
+                    _grid.SwapTileWithMineFreeTile(tile.GridPosition);
                 }
 
+                InitialClickIssued = true;
+                tile.Reveal();
             }
-            else // if only right click is released
-            {
-                if (_rightAndLeftIssued)
-                    _rightAndLeftIssued = false;
-                else
-                {
-                    Debug.Log("PLAYERINPUT:: Flag the Tile " + tile.Coordinates());
-                }
-            }
+                
         }
 
-        //-------------------------------------------------------------------
-        // Click Events 
-
-        if (_grid == null) return;
-        if (Input.GetMouseButton(0) && Input.GetMouseButton(1))
+        // LEFT & RIGHT RELEASE: REVEAL NEIGHBORS IF ENOUGH NEIGHBOR FLAGGED
+        if (_rightAndLeftPressed)
         {
-            //Debug.Log("BOTH MOUSE BUTTONS DOWN ON TILE " + Coordinates());
             _grid.HighlightArea(tile.GridPosition);
+            if(!tile.IsRevealed() && !tile.IsFlagged())  tile.Highlight();
+            if (Input.GetMouseButtonUp(0) || Input.GetMouseButtonUp(1))
+            {
+                _revealAreaIssued = true;
+                if (tile.IsRevealed() && tile.IsNeighborsFlagged())
+                {
+                    _grid.RevealArea(tile);
+                }
+                else
+                {
+                    _grid.RevertHighlightArea(tile.GridPosition);
+                    _grid.RevertHighlightTile(tile.GridPosition);
+                }
+            }
         }
-    }
 
-    public void OnMouseExit(Vector2 pos)
-    {
-        //-------------------------------------------------------------------
-        // PROBLEM: When dragged with both buttons down FAST, sometimes
-        //          some tiles stay highlighted
-        // TODO: Fix it.
-
-        Tile tile = _grid.Map[(int)pos.x][(int)pos.y];
-
-        if (Input.GetMouseButton(0) && Input.GetMouseButton(1))
+        if (!Input.GetMouseButton(0) || !Input.GetMouseButton(1))
         {
-            _grid.RevertHighlightArea(tile.GridPosition);
+            _rightAndLeftPressed = false;
+        }
+
+        if (!Input.GetMouseButton(0) && !Input.GetMouseButton(1))
+        {
+            _revealAreaIssued = false;
         }
     }
+
+    public void OnMouseExit(Tile tile)
+    {
+    
+        // revert highlighted tiles
+        if(!tile.IsRevealed() && !tile.IsFlagged()) 
+            tile.RevertHighlight();
+
+        foreach (Vector2 pos in tile.NeighborTilePositions)
+        {
+            Tile neighbor = _grid.Map[(int) pos.x][(int) pos.y];
+            if (!neighbor.IsRevealed() && !neighbor.IsFlagged())
+                neighbor.RevertHighlight();
+        }
+        
+    }
+
 }

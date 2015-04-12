@@ -1,19 +1,28 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using UnityEngine.UI;
 
 public class UIManager : MonoBehaviour
 {
+    // handles
     public GameManager GM;
     public MusicManager MM;
     public Text TimerText;
     public Text FlagText;
+    public Text TimeScaleText;
 
-    private InputField _heightInput;
-    private InputField _widthInput;
-    private InputField _minesInput;
-    private Text _sliderHeader;
-    private Slider _musicSlider;
+    private InputField  _heightInput;
+    private InputField  _widthInput;
+    private InputField  _minesInput;
+    private Button      _newGameButton;
+    private Text        _sliderHeader;
+    private Slider      _musicSlider;
 
+    private bool _isCustom;
+    private GameSettings _UI_GameSettings;
+
+    // ----------------------------------------------
+    // Functions
     void Awake()
     {
         // Get the handles manually
@@ -22,8 +31,10 @@ public class UIManager : MonoBehaviour
         _heightInput    = GameObject.Find("Height_Input").GetComponent<InputField>();
         _minesInput     = GameObject.Find("Mines_Input").GetComponent<InputField>();
         _musicSlider    = GameObject.Find("Music_Slider").GetComponent<Slider>();
+        _newGameButton = GameObject.Find("Button_NewGame").GetComponent<Button>();
 
-        if (_sliderHeader == null || _widthInput == null || _heightInput == null || _minesInput == null || _musicSlider == null)
+        if (_sliderHeader == null || _widthInput == null || _heightInput == null || 
+            _minesInput == null || _musicSlider == null || _newGameButton == null)
             Debug.Log("UIMANAGER:: ERROR! NULL HANDLES!");
     }
 
@@ -31,8 +42,14 @@ public class UIManager : MonoBehaviour
 	void Start ()
     {
         // initial update
-	    WriteSettingsToInputText(GM.Settings);  
+	    _UI_GameSettings = GM.Settings;
+	    WriteSettingsToInputText(_UI_GameSettings);  
 	}
+
+    void Update()
+    {
+        TimeScaleText.text = Time.timeScale.ToString();
+    }
 
     //-----------------------------------------------------------
     // Game Options Function Definitions
@@ -44,24 +61,24 @@ public class UIManager : MonoBehaviour
         {
             case 0:     // beginner settings
                 _sliderHeader.text = "Beginner";
-                GM.Settings = GameSettings.Beginner;
+                _UI_GameSettings = GameSettings.Beginner;
                 break;
 
             case 1:     // intermediate settings
                 _sliderHeader.text = "Intermediate";
-                GM.Settings = GameSettings.Intermediate;
+                _UI_GameSettings = GameSettings.Intermediate;
                 break;
 
             case 2:     // expert settings
                 _sliderHeader.text = "Expert";
-                GM.Settings = GameSettings.Expert;
+                _UI_GameSettings = GameSettings.Expert;
                 break;
             case 3:
                 _sliderHeader.text = "Custom";
                 break;
         }
 
-        WriteSettingsToInputText(GM.Settings);
+        WriteSettingsToInputText(_UI_GameSettings);
 
         // Set Custom Settings according to slider value. Read funct description
         SetCustomSettings(sliderValue == 3);
@@ -76,14 +93,22 @@ public class UIManager : MonoBehaviour
         _widthInput.interactable = isCustom;
         _heightInput.interactable = isCustom;
         _minesInput.interactable = isCustom;
+        _isCustom = isCustom;
+
+        //Debug.Log("MinesInput: " + _minesInput.IsInteractable());
     }
 
-    public void ReadSettings()
+    public GameSettings ReadSettings()
     {
-        int w = System.Int32.Parse(_widthInput.text);
-        int h = System.Int32.Parse(_heightInput.text);
-        int m = System.Int32.Parse(_minesInput.text);
-        GM.Settings.Set(w, h, m);
+        if (_isCustom)
+        {
+            int w = Int32.Parse(_widthInput.text);
+            int h = Int32.Parse(_heightInput.text);
+            int m = Int32.Parse(_minesInput.text);
+            _UI_GameSettings = new GameSettings(w, h, m);
+        }
+
+        return _UI_GameSettings;
     }
 
     void WriteSettingsToInputText(GameSettings settings)

@@ -77,7 +77,7 @@ public class PlayerInput : MonoBehaviour {
         UI.GetComponentInChildren<Canvas>().enabled = !UI.GetComponentInChildren<Canvas>().enabled;
         IsGamePaused = UI.GetComponentInChildren<Canvas>().enabled;
 
-        Debug.Log("PLAYERINPUT:: TimeScale: " + Time.timeScale);
+        //Debug.Log("PLAYERINPUT:: TimeScale: " + Time.timeScale);
     }
 
     public void OnMouseOver(Tile tile)

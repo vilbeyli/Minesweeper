@@ -13,6 +13,7 @@ public class GameManager : MonoBehaviour
 
     // private variables
     private Transform _gridtf;
+    private GameSettings _settings;
 
     // score variables
     private float _startTime;
@@ -21,25 +22,30 @@ public class GameManager : MonoBehaviour
 
     private Score score;
 
+    
+
 
     //-----------------------------------------
     // Function Definitions
 
     // getters & setters
-    public GameSettings Settings { get; set; }
-
+    public GameSettings Settings
+    {
+        get { return _settings; }
+        set { _settings = value; }
+    }
 
     // unity functions
     void Awake()
     {
-        Settings = new GameSettings();
-        Settings = GameSettings.Intermediate;
+        _settings = new GameSettings();
+        _settings = GameSettings.Intermediate;
 
     }
 
     void Start ()
 	{
-        StartNewGame();
+        StartNewGame(_settings);
     }
 
     private void Update()
@@ -52,18 +58,35 @@ public class GameManager : MonoBehaviour
     }
 
     // member functions
-    public void StartNewGame()
+    public void NewGameButton()
+    {
+        GameSettings settings = UI.ReadSettings();
+        
+        if(settings.isValid())
+            StartNewGame(settings);
+        else
+        {
+            Debug.Log("INVALID SETTINGS!");
+            return;
+        }
+    }
+
+    public void RestartButton()
+    {
+        StartNewGame(_settings);
+    }
+
+    public void StartNewGame(GameSettings settings)
     {
         // delete current grid in the scene & instantiate new grid
         Destroy(GameObject.Find("Grid(Clone)"));
         _gridtf = ((GameObject)Instantiate(GridPrefab, new Vector3(0, 0, 0), Quaternion.identity)).transform;
         _grid = _gridtf.GetComponent<GridScript>();
-        if(_grid == null) Debug.Log("_grid IS NULL!!");
+        if (_grid == null) Debug.Log("_grid IS NULL!!");
 
-        // build new scene with new settings
-        UI.ReadSettings();              // IMPORTANT! updates the Settings property
-        _grid.GenerateMap(Settings);    // grid manager "_grid" generates the map with given settings
-        
+        _settings = settings;
+        _grid.GenerateMap(_settings);    // grid manager "_grid" generates the map with given settings
+
 
         // update handles
         GetComponent<PlayerInput>().Grid = _grid;
@@ -72,14 +95,13 @@ public class GameManager : MonoBehaviour
         UI.GetComponentInChildren<Canvas>().enabled = false;
         PlayerInput.IsGamePaused = false;
         Time.timeScale = 1f;
-        Debug.Log("PLAYERINPUT:: TimeScale=" + Time.timeScale);
-        
+        //Debug.Log("PLAYERINPUT:: TimeScale=" + Time.timeScale);
+
         // reset stats and UI
         PlayerInput.InitialClickIssued = false;
-        _flagCount = Settings.Mines;
+        _flagCount = _settings.Mines;
         UI.UpdateFlagText(_flagCount);
         UI.UpdateTimeText(0);
-
     }
 
     public void StartTimer()
@@ -91,6 +113,8 @@ public class GameManager : MonoBehaviour
     {
         _endTime = Time.time - _startTime;
         Debug.Log("GAME ENDED IN " + (_endTime - _startTime) + " SECONDS. GAME WON:" + win);
+        
+        // TODO: GAMEOVER STATE - MENU?
         GetComponent<PlayerInput>().TogglePauseMenu();
 
         if (win)
@@ -177,6 +201,15 @@ public class GameSettings
         _height = h;
         _mines = m;
     }
+
+    public bool isValid()
+    {
+        if (_width <= 0 || _height <= 0 || _mines <= 0)
+            return false;
+        if (_mines >= _width*_height)
+            return false;
+        return true;
+    }
 }
 
 [System.Serializable]
@@ -214,4 +247,5 @@ public class Score
         _timePassed = timePassed;
         _name = name;
     }
+
 }

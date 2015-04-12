@@ -119,7 +119,6 @@ public class Tile : MonoBehaviour
 
     public void Conceal()
     {
-        // TODO: update unrevealiedTileCount in gridscript
         _revealed = false;
         renderer.material = Materials[TILE_UNREVEALED];
     }
@@ -167,7 +166,6 @@ public class Tile : MonoBehaviour
             }
         }
 
-        // TODO: CHECK GURKAN IF <= !
         return remaining_flags <= 0;
     }
 

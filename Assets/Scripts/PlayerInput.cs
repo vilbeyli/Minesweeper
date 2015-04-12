@@ -15,7 +15,7 @@ public class PlayerInput : MonoBehaviour {
     // static variables
     private static bool _rightAndLeftPressed;
     private static bool _revealAreaIssued;
-    public static bool InitialClickIssued;
+    private static bool _initialClickIssued;    // used to track first-click-death and start-timer
     public static bool IsGamePaused;
 
 
@@ -35,12 +35,17 @@ public class PlayerInput : MonoBehaviour {
         set { _grid = value; }
     }
 
-    // unity functions
-	void Start ()
-	{
+    public static bool InitialClickIssued
+    {
+        get { return _initialClickIssued; }
+        set
+        {
+            _initialClickIssued = value;
+        }
+    }
 
-	}
-	
+    // unity functions
+
 	void Update () 
     {
 	    ScanForKeyStroke();
@@ -103,12 +108,15 @@ public class PlayerInput : MonoBehaviour {
         {
             if (!tile.IsFlagged() && !tile.IsRevealed())
             {
-                if (!InitialClickIssued && tile.IsMine())
+                if (!_initialClickIssued)
                 {
-                    _grid.SwapTileWithMineFreeTile(tile.GridPosition);
+                    if (tile.IsMine())
+                        _grid.SwapTileWithMineFreeTile(tile.GridPosition);
+
+                    _initialClickIssued = true;
+                    GetComponent<GameManager>().StartTimer();
                 }
 
-                InitialClickIssued = true;
                 tile.Reveal();
             }
                 

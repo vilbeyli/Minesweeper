@@ -14,6 +14,14 @@ public class GameManager : MonoBehaviour
     // private variables
     private Transform _gridtf;
 
+    // score variables
+    private float _startTime;
+    private float _endTime;
+    private int _flagCount;
+
+    private Score score;
+
+
     //-----------------------------------------
     // Function Definitions
 
@@ -26,11 +34,21 @@ public class GameManager : MonoBehaviour
     {
         Settings = new GameSettings();
         Settings = GameSettings.Intermediate;
+
     }
 
     void Start ()
 	{
         StartNewGame();
+    }
+
+    private void Update()
+    {
+        UI.UpdateFlagText(_flagCount);
+        if (PlayerInput.InitialClickIssued)
+        {
+            UI.UpdateTimeText((int) (Time.time - _startTime));
+        }
     }
 
     // member functions
@@ -45,7 +63,7 @@ public class GameManager : MonoBehaviour
         // build new scene with new settings
         UI.ReadSettings();              // IMPORTANT! updates the Settings property
         _grid.GenerateMap(Settings);    // grid manager "_grid" generates the map with given settings
-        PlayerInput.InitialClickIssued = false;
+        
 
         // update handles
         GetComponent<PlayerInput>().Grid = _grid;
@@ -53,6 +71,45 @@ public class GameManager : MonoBehaviour
         // close menu
         UI.GetComponentInChildren<Canvas>().enabled = false;
         PlayerInput.IsGamePaused = false;
+        Time.timeScale = 1f;
+        Debug.Log("PLAYERINPUT:: TimeScale=" + Time.timeScale);
+        
+        // reset stats and UI
+        PlayerInput.InitialClickIssued = false;
+        _flagCount = Settings.Mines;
+        UI.UpdateFlagText(_flagCount);
+        UI.UpdateTimeText(0);
+
+    }
+
+    public void StartTimer()
+    {
+        _startTime = Time.time;
+    }
+
+    public void GameOver(bool win)
+    {
+        _endTime = Time.time - _startTime;
+        Debug.Log("GAME ENDED IN " + (_endTime - _startTime) + " SECONDS. GAME WON:" + win);
+        GetComponent<PlayerInput>().TogglePauseMenu();
+
+        if (win)
+        {
+            int timePassed = (int)(_endTime - _startTime);
+            score = new Score(timePassed, Settings);
+
+            // TODO: HIGHSCORES if score in top 10, ask user input, put on leaderboard
+        }
+    }
+
+    public void PutFlag()
+    {
+        _flagCount--;
+    }
+
+    public void RemoveFlag()
+    {
+        _flagCount++;
     }
 }
 
@@ -119,5 +176,42 @@ public class GameSettings
         _width = w;
         _height = h;
         _mines = m;
+    }
+}
+
+[System.Serializable]
+public class Score
+{
+    private GameSettings _settings;
+    private int _timePassed;
+    private string _name;
+
+    public GameSettings Settings
+    {
+        get { return _settings; }
+    }
+
+    public int TimePassed
+    {
+        get { return _timePassed; }
+    }
+
+    public string Name
+    {
+        get { return _name; }
+        set { _name = value; }
+    }
+
+    public Score(int timePassed, GameSettings settings)
+    {
+        _timePassed = timePassed;
+        _settings = settings;
+    }
+
+    public Score(GameSettings settings, int timePassed, string name)
+    {
+        _settings = settings;
+        _timePassed = timePassed;
+        _name = name;
     }
 }

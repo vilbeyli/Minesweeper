@@ -256,4 +256,18 @@ public class GridScript : MonoBehaviour
                 + "\nCoord: " + _map[(int)mineFreePos.x][(int)mineFreePos.y].transform.position + "\n");
     }
 
+    public bool AreAllTilesRevealed()
+    {
+        foreach (List<Tile> row in _map)
+        {
+            foreach (Tile tile in row)
+            {
+                if (!tile.IsMine() && !tile.IsRevealed())
+                    return false;
+            }
+        }
+
+        return true;
+    }
+
 }

@@ -5,6 +5,8 @@ public class UIManager : MonoBehaviour
 {
     public GameManager GM;
     public MusicManager MM;
+    public Text TimerText;
+    public Text FlagText;
 
     private InputField _heightInput;
     private InputField _widthInput;
@@ -109,6 +111,8 @@ public class UIManager : MonoBehaviour
         MM.SetVolume(val ? _musicSlider.value : 0f);
     }
 
+    //-----------------------
+    // Debug UI
     public void RevealTiles()
     {
         GameObject.Find("Grid(Clone)").GetComponent<GridScript>().RevealAllTiles();
@@ -117,5 +121,37 @@ public class UIManager : MonoBehaviour
     public void ConcealTiles()
     {
         GameObject.Find("Grid(Clone)").GetComponent<GridScript>().ConcealAllTiles();  
+    }
+
+    //-------------------------------------
+    // Scores area
+
+    public void UpdateTimeText(int time)
+    {
+        if (time < 10)
+        {
+            TimerText.text = "00" + time;
+        }
+        else if (time < 100)
+        {
+            TimerText.text = "0" + time;
+        }
+        else if (time < 1000)
+        {
+            TimerText.text = time.ToString();
+        }
+    }
+
+    public void UpdateFlagText(int flagCount)
+    {
+        if (flagCount < 10)
+        {
+            FlagText.text = "00" + flagCount;
+        }
+        else if (flagCount < 100)
+        {
+            FlagText.text = "0" + flagCount;
+        }
+
     }
 }

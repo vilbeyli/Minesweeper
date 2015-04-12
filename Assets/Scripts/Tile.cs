@@ -18,6 +18,7 @@ public class Tile : MonoBehaviour
     // handles
     private GridScript _grid;
     private PlayerInput _playerInput;
+    private GameManager GM;
 
     // private variables
     private Vector2         _gridPosition = Vector2.zero;   // set when GridScript::GenerateMap() is called
@@ -62,6 +63,7 @@ public class Tile : MonoBehaviour
     void Awake()
     {
         _playerInput = GameObject.Find("GameManager").GetComponent<PlayerInput>();
+        GM = _playerInput.GetComponent<GameManager>();
     }
     
     void Start()
@@ -89,24 +91,15 @@ public class Tile : MonoBehaviour
             _playerInput.OnMouseOver(this);
     }
 
-
-   
-
-
     // member functions
     public void Reveal()    
     {
-        // state variable
-        PlayerInput.InitialClickIssued = true;
-
         if (this.IsMine())
         {
-            //TODO: GAME OVER LOGIC
-            Debug.Log("------------  STATE:  GAME OVER  ------------");
+            GM.GameOver(false); // end game with negative result
         }
         else
         {
-            //_unrevealedTileCount--; //TODO: move it to gridscript
             _revealed = true;
             if (_tileValue == 0)
             {
@@ -121,7 +114,8 @@ public class Tile : MonoBehaviour
 
         renderer.material = Materials[_tileValue];
 
-    } 
+        if(_grid.AreAllTilesRevealed())   GM.GameOver(true);
+    }
 
     public void Conceal()
     {
@@ -174,12 +168,16 @@ public class Tile : MonoBehaviour
         }
 
         // TODO: CHECK GURKAN IF <= !
-        return remaining_flags == 0;
+        return remaining_flags <= 0;
     }
 
     public void ToggleFlag()
     {
         _flagged = !_flagged;
         renderer.material = _flagged ? Materials[TILE_FLAGGED] : Materials[TILE_UNREVEALED];
+
+        if(_flagged)    GM.PutFlag();
+        else            GM.RemoveFlag();
+        
     }
 }

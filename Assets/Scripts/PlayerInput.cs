@@ -59,20 +59,6 @@ public class PlayerInput : MonoBehaviour {
 
     public void TogglePauseMenu()
     {
-        /* 
-        if (UI.GetComponentInChildren<Canvas>().enabled)
-        {
-            UI.GetComponentInChildren<Canvas>().enabled = false;
-            Time.timeScale = 1.0f;
-        }
-        else
-        {
-            UI.GetComponentInChildren<Canvas>().enabled = true;
-            Time.timeScale = 0f;
-        }
-        */
-
-        // shorter version of the code above
         Time.timeScale = System.Convert.ToSingle(UI.GetComponentInChildren<Canvas>().enabled);
         UI.GetComponentInChildren<Canvas>().enabled = !UI.GetComponentInChildren<Canvas>().enabled;
         IsGamePaused = UI.GetComponentInChildren<Canvas>().enabled;

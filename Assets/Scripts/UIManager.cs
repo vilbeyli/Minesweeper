@@ -10,6 +10,7 @@ public class UIManager : MonoBehaviour
     public Text TimerText;
     public Text FlagText;
     public Text TimeScaleText;
+    public Text GameStateText;  // won/lost
 
     private InputField  _heightInput;
     private InputField  _widthInput;
@@ -26,7 +27,7 @@ public class UIManager : MonoBehaviour
     void Awake()
     {
         // Get the handles manually
-        _sliderHeader   = GameObject.Find("Difficulty_Text").GetComponent<Text>();
+        _sliderHeader   = GameObject.Find("Difficulty_Value_Text").GetComponent<Text>();
         _widthInput     = GameObject.Find("Width_Input").GetComponent<InputField>();
         _heightInput    = GameObject.Find("Height_Input").GetComponent<InputField>();
         _minesInput     = GameObject.Find("Mines_Input").GetComponent<InputField>();
@@ -153,29 +154,31 @@ public class UIManager : MonoBehaviour
 
     public void UpdateTimeText(int time)
     {
+        TimerText.text = "Timer: ";
         if (time < 10)
         {
-            TimerText.text = "00" + time;
+            TimerText.text += "00" + time;
         }
         else if (time < 100)
         {
-            TimerText.text = "0" + time;
+            TimerText.text += "0" + time;
         }
         else if (time < 1000)
         {
-            TimerText.text = time.ToString();
+            TimerText.text += time.ToString();
         }
     }
 
     public void UpdateFlagText(int flagCount)
     {
+        FlagText.text = "Flags: ";
         if (flagCount < 10)
         {
-            FlagText.text = "00" + flagCount;
+            FlagText.text += "00" + flagCount;
         }
         else if (flagCount < 100)
         {
-            FlagText.text = "0" + flagCount;
+            FlagText.text += "0" + flagCount;
         }
 
     }

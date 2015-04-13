@@ -174,8 +174,8 @@ public class Tile : MonoBehaviour
         _flagged = !_flagged;
         renderer.material = _flagged ? Materials[TILE_FLAGGED] : Materials[TILE_UNREVEALED];
 
-        if(_flagged)    GM.PutFlag();
-        else            GM.RemoveFlag();
+        if(_flagged)    GM.IncrementFlagCounter();
+        else            GM.DecrementFlagCounter();
         
     }
 }

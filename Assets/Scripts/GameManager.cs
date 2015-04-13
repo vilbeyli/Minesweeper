@@ -1,4 +1,7 @@
-﻿using UnityEngine;
+﻿using System;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
@@ -21,6 +24,7 @@ public class GameManager : MonoBehaviour
     private int _flagCount;
 
     private Score score;
+    private List<List<Score>> _highScores; 
 
     
 
@@ -44,7 +48,8 @@ public class GameManager : MonoBehaviour
     }
 
     void Start ()
-	{
+    {
+        GetHighScores();
         StartNewGame(_settings);
     }
 
@@ -58,24 +63,6 @@ public class GameManager : MonoBehaviour
     }
 
     // member functions
-    public void NewGameButton()
-    {
-        GameSettings settings = UI.ReadSettings();
-        
-        if(settings.isValid())
-            StartNewGame(settings);
-        else
-        {
-            Debug.Log("INVALID SETTINGS!");
-            return;
-        }
-    }
-
-    public void RestartButton()
-    {
-        StartNewGame(_settings);
-    }
-
     public void StartNewGame(GameSettings settings)
     {
         // delete current grid in the scene & instantiate new grid
@@ -93,6 +80,7 @@ public class GameManager : MonoBehaviour
 
         // close menu
         UI.GetComponentInChildren<Canvas>().enabled = false;
+        UI.GameStateText.enabled = false;
         PlayerInput.IsGamePaused = false;
         Time.timeScale = 1f;
         //Debug.Log("PLAYERINPUT:: TimeScale=" + Time.timeScale);
@@ -111,32 +99,134 @@ public class GameManager : MonoBehaviour
 
     public void GameOver(bool win)
     {
+        UI.GameStateText.enabled = true;
+        UI.GameStateText.text = "Game: " + (win ? " Won" : " Lost");
         _endTime = Time.time - _startTime;
         Debug.Log("GAME ENDED IN " + (_endTime - _startTime) + " SECONDS. GAME WON:" + win);
         
         // TODO: GAMEOVER STATE - MENU?
-        GetComponent<PlayerInput>().TogglePauseMenu();
-
+        //GetComponent<PlayerInput>().TogglePauseMenu();
+        Time.timeScale = 0f;
+        PlayerInput.IsGamePaused = true;
         if (win)
         {
             int timePassed = (int)(_endTime - _startTime);
-            score = new Score(timePassed, Settings);
+            score = new Score(timePassed);
 
             // TODO: HIGHSCORES if score in top 10, ask user input, put on leaderboard
         }
+        
     }
 
-    public void PutFlag()
+    public void IncrementFlagCounter()
     {
         _flagCount--;
     }
 
-    public void RemoveFlag()
+    public void DecrementFlagCounter()
     {
         _flagCount++;
     }
-}
 
+    // button functions
+    public void NewGameButton()
+    {
+        GameSettings settings = UI.ReadSettings();
+
+        if (settings.isValid())
+            StartNewGame(settings);
+        else
+        {
+            // TODO: INVALID INPUT WARNING
+            Debug.Log("INVALID SETTINGS!");
+            return;
+        }
+    }
+
+    public void RestartButton()
+    {
+        StartNewGame(_settings);
+    }
+
+    // high score functions
+    void GetHighScores()
+    {
+        _highScores = new List<List<Score>>();
+        // ReadDatabase()
+        CreateDummyScores();
+        
+        LoadScoresToUI();
+    }
+
+    void CreateDummyScores()
+    {
+        int baseScore;
+
+         // 3 databases: 1 for each difficulty
+        _highScores.Add(new List<Score>()); // 0: Beginner
+        _highScores.Add(new List<Score>()); // 1: Intermediate
+        _highScores.Add(new List<Score>()); // 2: Expert
+        
+        for (int i = 0; i < 3; i++)
+        {
+            baseScore = (i + 1)*5;  // 5-6-7... beginner, 10-11-12... intermediate...
+            for (int j = 0; j < 10; j++)
+            {
+                switch (i)
+                {
+                    case 0:
+                        _highScores[i].Add(new Score(baseScore + j));
+                        break;
+
+                    case 1:
+                        _highScores[i].Add(new Score(baseScore + j));
+                        break;
+
+                    case 2:
+                        _highScores[i].Add(new Score(baseScore + j));
+                        break;
+                }
+                
+            }
+        }
+    }
+
+    void LoadScoresToUI()
+    {
+        // get UI Text objects
+        Text beginnerScores, intermediateScores, expertScores;
+
+        beginnerScores = GameObject.Find("Beginner_Scores").GetComponent<Text>();
+        intermediateScores = GameObject.Find("Intermediate_Scores").GetComponent<Text>();
+        expertScores = GameObject.Find("Expert_Scores").GetComponent<Text>();
+
+        if (beginnerScores == null || intermediateScores == null || expertScores == null)
+        {
+            Debug.Log("GAMEMANAGER:: LOADSCORESTOUI:: NULL HANDLES!");
+            return;
+        }
+
+        // construct text to be displayed in UI elements
+        String beginnerScoresText, intermediateScoresText, expertScoresText;
+        beginnerScoresText = intermediateScoresText = expertScoresText = "";
+
+        for (int j = 0; j < _highScores[0].Count; j++)
+            beginnerScoresText += (j + 1) + "\t" + _highScores[0][j].Name + "\t" + _highScores[0][j].TimePassed + "\n";
+
+        for (int j = 0; j < _highScores[1].Count; j++)
+            intermediateScoresText += (j + 1) + "\t" + _highScores[1][j].Name + "\t" + _highScores[1][j].TimePassed + "\n";
+
+        for (int j = 0; j < _highScores[2].Count; j++)
+            expertScoresText += (j + 1) + "\t" + _highScores[2][j].Name + "\t" + _highScores[2][j].TimePassed + "\n";
+        
+
+
+        // update UI elements' text fields
+        beginnerScores.text = beginnerScoresText;
+        intermediateScores.text = intermediateScoresText;
+        expertScores.text = expertScoresText;
+    }
+}
 
 // SERIALIZE FIELD ???? DOESNT WORK???
 [System.Serializable]
@@ -215,14 +305,8 @@ public class GameSettings
 [System.Serializable]
 public class Score
 {
-    private GameSettings _settings;
     private int _timePassed;
     private string _name;
-
-    public GameSettings Settings
-    {
-        get { return _settings; }
-    }
 
     public int TimePassed
     {
@@ -235,17 +319,15 @@ public class Score
         set { _name = value; }
     }
 
-    public Score(int timePassed, GameSettings settings)
+    public Score(int timePassed)
     {
         _timePassed = timePassed;
-        _settings = settings;
+        _name = "Anon" + timePassed.ToString();
     }
 
-    public Score(GameSettings settings, int timePassed, string name)
+    public Score(int timePassed, string name)
     {
-        _settings = settings;
         _timePassed = timePassed;
         _name = name;
     }
-
 }

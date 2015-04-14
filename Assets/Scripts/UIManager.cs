@@ -172,14 +172,27 @@ public class UIManager : MonoBehaviour
     public void UpdateFlagText(int flagCount)
     {
         FlagText.text = "Flags: ";
-        if (flagCount < 10)
+
+        // handle the sign of the counter
+        string flagCountText = "";
+        if (flagCount < 0)
         {
-            FlagText.text += "00" + flagCount;
+            flagCountText += "-";
         }
-        else if (flagCount < 100)
+
+        // set the counter value according to digit number of flag count
+        flagCount = Mathf.Abs(flagCount);   // ignore sign
+        if (Mathf.Abs(flagCount) < 10)
         {
-            FlagText.text += "0" + flagCount;
+            flagCountText += "00" + flagCount;
         }
+        else if (Mathf.Abs(flagCount) < 100)
+        {
+            flagCountText += "0" + flagCount;
+        }
+
+        // add the constructed flag count text to the UI Text
+        FlagText.text += flagCountText;
 
     }
 }

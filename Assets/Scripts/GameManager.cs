@@ -104,8 +104,7 @@ public class GameManager : MonoBehaviour
         _endTime = Time.time - _startTime;
         Debug.Log("GAME ENDED IN " + (_endTime - _startTime) + " SECONDS. GAME WON:" + win);
         
-        // TODO: GAMEOVER STATE - MENU?
-        //GetComponent<PlayerInput>().TogglePauseMenu();
+        // set time related data
         Time.timeScale = 0f;
         PlayerInput.IsGamePaused = true;
         if (win)
@@ -157,6 +156,8 @@ public class GameManager : MonoBehaviour
         
         LoadScoresToUI();
     }
+
+    //TODO: read database function
 
     void CreateDummyScores()
     {
@@ -211,20 +212,22 @@ public class GameManager : MonoBehaviour
         beginnerScoresText = intermediateScoresText = expertScoresText = "";
 
         for (int j = 0; j < _highScores[0].Count; j++)
-            beginnerScoresText += (j + 1) + "\t" + _highScores[0][j].Name + "\t" + _highScores[0][j].TimePassed + "\n";
-
+            beginnerScoresText += HighScoreFormat(j, _highScores[0][j]); 
         for (int j = 0; j < _highScores[1].Count; j++)
-            intermediateScoresText += (j + 1) + "\t" + _highScores[1][j].Name + "\t" + _highScores[1][j].TimePassed + "\n";
-
+            intermediateScoresText += HighScoreFormat(j, _highScores[1][j]); 
         for (int j = 0; j < _highScores[2].Count; j++)
-            expertScoresText += (j + 1) + "\t" + _highScores[2][j].Name + "\t" + _highScores[2][j].TimePassed + "\n";
-        
+            expertScoresText += HighScoreFormat(j, _highScores[2][j]); 
 
 
         // update UI elements' text fields
         beginnerScores.text = beginnerScoresText;
         intermediateScores.text = intermediateScoresText;
         expertScores.text = expertScoresText;
+    }
+
+    string HighScoreFormat(int i, Score score)
+    {
+        return "\t" + (i + 1) + "\t\t" + score.Name + "\t\t" + score.TimePassed + "\n";
     }
 }
 

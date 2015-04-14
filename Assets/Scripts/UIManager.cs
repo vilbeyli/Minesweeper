@@ -15,7 +15,6 @@ public class UIManager : MonoBehaviour
     private InputField  _heightInput;
     private InputField  _widthInput;
     private InputField  _minesInput;
-    private Button      _newGameButton;
     private Text        _sliderHeader;
     private Slider      _musicSlider;
 
@@ -31,12 +30,7 @@ public class UIManager : MonoBehaviour
         _widthInput     = GameObject.Find("Width_Input").GetComponent<InputField>();
         _heightInput    = GameObject.Find("Height_Input").GetComponent<InputField>();
         _minesInput     = GameObject.Find("Mines_Input").GetComponent<InputField>();
-        _musicSlider    = GameObject.Find("Music_Slider").GetComponent<Slider>();
-        _newGameButton = GameObject.Find("Button_NewGame").GetComponent<Button>();
-
-        if (_sliderHeader == null || _widthInput == null || _heightInput == null || 
-            _minesInput == null || _musicSlider == null || _newGameButton == null)
-            Debug.Log("UIMANAGER:: ERROR! NULL HANDLES!");
+        //_musicSlider    = GameObject.Find("Music_Slider").GetComponent<Slider>();
     }
 
 	// Use this for initialization

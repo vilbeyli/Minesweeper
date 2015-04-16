@@ -44,6 +44,14 @@ public class UIManager : MonoBehaviour
     void Update()
     {
         TimeScaleText.text = Time.timeScale.ToString();
+    #if UNITY_WEBGL
+
+        if (!Screen.fullScreen && (Screen.width != 960 && Screen.width != 800 && Screen.width != 1280))
+        {
+            Screen.SetResolution(960, 600, false);
+        }
+
+    #endif
     }
 
     //-----------------------------------------------------------

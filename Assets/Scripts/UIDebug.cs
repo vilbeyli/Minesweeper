@@ -1,44 +1,8 @@
 ﻿using UnityEngine;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.UI;
 
 public class UIDebug : MonoBehaviour {
-
-    //======================================
-    // Variable Declarations
-    
-    // static variables
-	
-	// handles
-
-    // private variables
-
-    // public variables
-
-
-    //======================================
-    // Function Definitions
-
-    // getters & setters
-
-    // unity functions
-	void Awake ()
-	{
-	
-	}
-	
-	void Start ()
-	{
-	    
-
-
-    }
-	
-	void Update () 
-    {
-	
-	}
 
     // member functions
     //-----------------------

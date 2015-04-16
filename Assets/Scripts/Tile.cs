@@ -112,7 +112,7 @@ public class Tile : MonoBehaviour
             if (_tileValue == 0)    RevealNeighbors();
         }
 
-        renderer.material = Materials[_tileValue];
+        GetComponent<Renderer>().material = Materials[_tileValue];
 
         if(_grid.AreAllTilesRevealed())   GM.GameOver(true);
     }
@@ -171,7 +171,7 @@ public class Tile : MonoBehaviour
     public void Conceal()
     {
         _revealed = false;
-        renderer.material = Materials[TILE_UNREVEALED];
+        GetComponent<Renderer>().material = Materials[TILE_UNREVEALED];
     }
 
     public void PlaceMineOnTile()
@@ -181,12 +181,12 @@ public class Tile : MonoBehaviour
 
     public void Highlight()
     {
-        renderer.material = Materials[TILE_HIGHLIGHT];
+        GetComponent<Renderer>().material = Materials[TILE_HIGHLIGHT];
     }
 
     public void RevertHighlight()
     {
-        renderer.material = Materials[TILE_UNREVEALED];
+        GetComponent<Renderer>().material = Materials[TILE_UNREVEALED];
     }
 
     public bool IsRevealed()
@@ -223,7 +223,7 @@ public class Tile : MonoBehaviour
     public void ToggleFlag()
     {
         _flagged = !_flagged;
-        renderer.material = _flagged ? Materials[TILE_FLAGGED] : Materials[TILE_UNREVEALED];
+        GetComponent<Renderer>().material = _flagged ? Materials[TILE_FLAGGED] : Materials[TILE_UNREVEALED];
 
         if (_flagged)
         {

@@ -5,4 +5,4 @@ leaderboard and an options menu.
 
 ![Screenshot]()
 
-#**[Play Minesweeper on Web!]()**
+#**[Play Minesweeper on Web!](http://vilbeyli.github.io/playtest)**

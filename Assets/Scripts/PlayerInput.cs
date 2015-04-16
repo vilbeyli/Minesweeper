@@ -61,7 +61,7 @@ public class PlayerInput : MonoBehaviour {
     {
         Time.timeScale = System.Convert.ToSingle(UI.GetComponentInChildren<Canvas>().enabled);
         UI.GetComponentInChildren<Canvas>().enabled = !UI.GetComponentInChildren<Canvas>().enabled;
-        IsGamePaused = UI.GetComponentInChildren<Canvas>().enabled;
+        IsGamePaused = UI.GetComponentInChildren<Canvas>().enabled; // TODO: FIX PAUSE ISSUE
 
         //Debug.Log("PLAYERINPUT:: TimeScale: " + Time.timeScale);
     }

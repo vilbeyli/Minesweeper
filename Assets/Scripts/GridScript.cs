@@ -1,5 +1,9 @@
-﻿using UnityEngine;
+﻿using System;
+using System.Collections;
+using UnityEngine;
 using System.Collections.Generic;
+using System.Linq;
+using Random = UnityEngine.Random;
 
 
 public class GridScript : MonoBehaviour
@@ -14,6 +18,11 @@ public class GridScript : MonoBehaviour
     // private variables
     private List<List<Tile>> _map = new List<List<Tile>>();
     private GameSettings _settings;
+
+    private Tile _detonationTile;
+
+    [SerializeField]
+    private AnimationSettings _animationSettings;
 
     public List<List<Tile>> Map
     {
@@ -269,5 +278,31 @@ public class GridScript : MonoBehaviour
 
         return true;
     }
+    
+}
 
+[System.Serializable]
+public class AnimationSettings
+{
+    [SerializeField]
+    private float _detonateMineDelay;
+    [SerializeField]
+    private float _midDetonationDelayMin;
+    [SerializeField]
+    private float _midDetonationDelayMax;
+
+    public float DetonateMineDelay
+    {
+        get { return _detonateMineDelay; }
+    }
+
+    public float MidDetonationDelayMin
+    {
+        get { return _midDetonationDelayMin; }
+    }
+
+    public float MidDetonationDelayMax
+    {
+        get { return _midDetonationDelayMax; }
+    }
 }

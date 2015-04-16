@@ -131,18 +131,6 @@ public class UIManager : MonoBehaviour
         MM.SetVolume(val ? _musicSlider.value : 0f);
     }
 
-    //-----------------------
-    // Debug UI
-    public void RevealTiles()
-    {
-        GameObject.Find("Grid(Clone)").GetComponent<GridScript>().RevealAllTiles();
-    }
-
-    public void ConcealTiles()
-    {
-        GameObject.Find("Grid(Clone)").GetComponent<GridScript>().ConcealAllTiles();  
-    }
-
     //-------------------------------------
     // Scores area
 

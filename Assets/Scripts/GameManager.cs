@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using Random = UnityEngine.Random;
 
 public class GameManager : MonoBehaviour
 {
@@ -13,6 +14,7 @@ public class GameManager : MonoBehaviour
     public GameObject GridPrefab;
     public UIManager UI;
     private GridScript _grid;
+    public ParticleSystem[] Explosions;
 
     // private variables
     private Transform _gridtf;
@@ -25,8 +27,6 @@ public class GameManager : MonoBehaviour
 
     private Score score;
     private List<List<Score>> _highScores; 
-
-    
 
 
     //-----------------------------------------
@@ -56,7 +56,7 @@ public class GameManager : MonoBehaviour
     private void Update()
     {
         UI.UpdateFlagText(_flagCount);
-        if (PlayerInput.InitialClickIssued)
+        if (PlayerInput.InitialClickIssued && !PlayerInput.IsGamePaused)
         {
             UI.UpdateTimeText((int) (Time.time - _startTime));
         }
@@ -90,6 +90,7 @@ public class GameManager : MonoBehaviour
         _flagCount = _settings.Mines;
         UI.UpdateFlagText(_flagCount);
         UI.UpdateTimeText(0);
+
     }
 
     public void StartTimer()
@@ -105,7 +106,7 @@ public class GameManager : MonoBehaviour
         Debug.Log("GAME ENDED IN " + (_endTime - _startTime) + " SECONDS. GAME WON:" + win);
         
         // set time related data
-        Time.timeScale = 0f;
+        //Time.timeScale = 0f;
         PlayerInput.IsGamePaused = true;
         if (win)
         {
@@ -228,6 +229,13 @@ public class GameManager : MonoBehaviour
     string HighScoreFormat(int i, Score score)
     {
         return "\t" + (i + 1) + "\t\t" + score.Name + "\t\t" + score.TimePassed + "\n";
+    }
+
+    public void Detonate(Tile tile)
+    {
+        int index = Random.Range(0, Explosions.Length);
+        Explosions[index].transform.position = tile.transform.position + new Vector3(0, 1, 0);
+        Explosions[index].Play();
     }
 }
 

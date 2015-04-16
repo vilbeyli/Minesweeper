@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -27,8 +28,11 @@ public class Tile : MonoBehaviour
     private int             _tileValue;                     // # mines nearby, 9 if mine is on the tile
     private bool             _flagged;                      // set when ToggleMine() is called
 
-    // public variablesf
+    // public variables
     public Material[]       Materials;
+
+    [SerializeField] 
+    private Lighting Lighting;
 
     //-------------------------------------------------------------
     // Function Definitions
@@ -94,27 +98,74 @@ public class Tile : MonoBehaviour
     // member functions
     public void Reveal()    
     {
+        // if clicked on mine
         if (this.IsMine())
         {
+            PutOutLights();
+            GM.Detonate(this);
             GM.GameOver(false); // end game with negative result
         }
         else
         {
             _revealed = true;
-            if (_tileValue == 0)
-            {
-                foreach (Vector2 pos in _neighborTilePositions)
-                {
-                    Tile neighbor = _grid.Map[(int) pos.x][(int) pos.y];
-                    if (!neighbor.IsRevealed())
-                        neighbor.Reveal();
-                }
-            }
+            StartCoroutine("LightUp");
+            if (_tileValue == 0)    RevealNeighbors();
         }
 
         renderer.material = Materials[_tileValue];
 
         if(_grid.AreAllTilesRevealed())   GM.GameOver(true);
+    }
+
+    IEnumerator LightUp()
+    {
+        Light l = GetComponentInChildren<Light>();
+        l.intensity = 0;
+        l.enabled = true;
+        
+        while (l.intensity < Lighting.IntensityValue)
+        {
+            l.intensity += Lighting.IntensityIteration;
+            yield return new WaitForSeconds(0); // necessary for increased duration of lighting up
+        }
+    }
+
+    IEnumerator LightDown(Tile tile)
+    {
+        //Debug.Log("LightDown(): " + tile.GridPosition);
+        Light l = tile.GetComponentInChildren<Light>();
+
+        while (l.intensity > 0)
+        {
+            l.intensity -= Lighting.IntensityIteration;
+            yield return new WaitForSeconds(0); // necessary for increased duration of lighting up
+        }
+
+        //Debug.Log("LightDown(): " + tile.GridPosition + " DONE");
+    }
+
+    void PutOutLights()
+    {
+        foreach (List<Tile> row in _grid.Map)
+        {
+            foreach (Tile tile in row)
+            {
+                if (tile.GetComponentInChildren<Light>().enabled)
+                {
+                    StartCoroutine("LightDown", tile);
+                }
+            }
+        }
+    }
+
+    void RevealNeighbors()
+    {
+        foreach (Vector2 pos in _neighborTilePositions)
+        {
+            Tile neighbor = _grid.Map[(int)pos.x][(int)pos.y];
+            if (!neighbor.IsRevealed())
+                neighbor.Reveal();
+        }
     }
 
     public void Conceal()
@@ -174,8 +225,50 @@ public class Tile : MonoBehaviour
         _flagged = !_flagged;
         renderer.material = _flagged ? Materials[TILE_FLAGGED] : Materials[TILE_UNREVEALED];
 
-        if(_flagged)    GM.IncrementFlagCounter();
-        else            GM.DecrementFlagCounter();
-        
+        if (_flagged)
+        {
+            GM.IncrementFlagCounter();
+            StartCoroutine("LightUp");
+        }
+        else
+        {
+            GM.DecrementFlagCounter();
+            GetComponentInChildren<Light>().enabled = false;
+        }
+
+
+    }
+}
+
+[Serializable]
+class Lighting
+{
+    [SerializeField]
+    private float _rangeIteration;
+    [SerializeField]
+    private float _intensityIteration;
+    [SerializeField]
+    private float _intensityValue;
+    [SerializeField]
+    private float _rangeValue;
+
+    public float RangeIteration
+    {
+        get { return _rangeIteration; }
+    }
+
+    public float IntensityIteration
+    {
+        get { return _intensityIteration; }
+    }
+
+    public float IntensityValue
+    {
+        get { return _intensityValue; }
+    }
+
+    public float RangeValue
+    {
+        get { return _rangeValue; }
     }
 }

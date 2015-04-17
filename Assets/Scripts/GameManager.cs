@@ -80,7 +80,7 @@ public class GameManager : MonoBehaviour
 
         // close menu
         UI.GetComponentInChildren<Canvas>().enabled = false;
-        UI.GameStateText.enabled = false;
+        UI.Elements.GameStateText.enabled = false;
         PlayerInput.IsGamePaused = false;
         Time.timeScale = 1f;
         //Debug.Log("PLAYERINPUT:: TimeScale=" + Time.timeScale);
@@ -100,8 +100,8 @@ public class GameManager : MonoBehaviour
 
     public void GameOver(bool win)
     {
-        UI.GameStateText.enabled = true;
-        UI.GameStateText.text = "Game: " + (win ? " Won" : " Lost");
+        UI.Elements.GameStateText.enabled = true;
+        UI.Elements.GameStateText.text = "Game: " + (win ? " Won" : " Lost");
         _endTime = Time.time - _startTime;
         Debug.Log("GAME ENDED IN " + (_endTime - _startTime) + " SECONDS. GAME WON:" + win);
         

@@ -4,36 +4,34 @@ using UnityEngine.UI;
 
 public class UIManager : MonoBehaviour
 {
+
+
     // handles
     public GameManager GM;
-    public MusicManager MM;
-    public Text TimerText;
-    public Text FlagText;
-    public Text TimeScaleText;
-    public Text GameStateText;  // won/lost
 
-    private InputField  _heightInput;
-    private InputField  _widthInput;
-    private InputField  _minesInput;
-    private Text        _sliderHeader;
-    private Slider      _musicSlider;
-
+    // private variables
     private bool _isCustom;
     private GameSettings _UI_GameSettings;
 
-    // ----------------------------------------------
-    // Functions
-    void Awake()
+    [SerializeField]
+    private UIElements _elements;
+
+
+    //-------------------------------------------------------------
+    // Function Definitions
+
+    // getters & setters
+    public UIElements Elements
     {
-        // Get the handles manually
-        _sliderHeader   = GameObject.Find("Difficulty_Value_Text").GetComponent<Text>();
-        _widthInput     = GameObject.Find("Width_Input").GetComponent<InputField>();
-        _heightInput    = GameObject.Find("Height_Input").GetComponent<InputField>();
-        _minesInput     = GameObject.Find("Mines_Input").GetComponent<InputField>();
-        //_musicSlider    = GameObject.Find("Music_Slider").GetComponent<Slider>();
+        get { return _elements; }
     }
 
-	// Use this for initialization
+    // unity functions
+    void Awake()
+    {
+
+    }
+
 	void Start ()
     {
         // initial update
@@ -43,7 +41,7 @@ public class UIManager : MonoBehaviour
 
     void Update()
     {
-        TimeScaleText.text = Time.timeScale.ToString();
+        //TimeScaleText.text = Time.timeScale.ToString();
     #if UNITY_WEBGL
 
         if (!Screen.fullScreen && (Screen.width != 960 && Screen.width != 800 && Screen.width != 1280))
@@ -63,21 +61,21 @@ public class UIManager : MonoBehaviour
         switch (sliderValue)
         {
             case 0:     // beginner settings
-                _sliderHeader.text = "Beginner";
+                _elements.SliderDifficulty.text = "Beginner";
                 _UI_GameSettings = GameSettings.Beginner;
                 break;
 
             case 1:     // intermediate settings
-                _sliderHeader.text = "Intermediate";
+                _elements.SliderDifficulty.text = "Intermediate";
                 _UI_GameSettings = GameSettings.Intermediate;
                 break;
 
             case 2:     // expert settings
-                _sliderHeader.text = "Expert";
+                _elements.SliderDifficulty.text = "Expert";
                 _UI_GameSettings = GameSettings.Expert;
                 break;
             case 3:
-                _sliderHeader.text = "Custom";
+                _elements.SliderDifficulty.text = "Custom";
                 break;
         }
 
@@ -93,9 +91,9 @@ public class UIManager : MonoBehaviour
     void SetCustomSettings(bool isCustom)
     {
         // set interactability
-        _widthInput.interactable = isCustom;
-        _heightInput.interactable = isCustom;
-        _minesInput.interactable = isCustom;
+        _elements.WidthInput.interactable = isCustom;
+        _elements.HeightInput.interactable = isCustom;
+        _elements.MinesInput.interactable = isCustom;
         _isCustom = isCustom;
 
         //Debug.Log("MinesInput: " + _minesInput.IsInteractable());
@@ -105,9 +103,9 @@ public class UIManager : MonoBehaviour
     {
         if (_isCustom)
         {
-            int w = Int32.Parse(_widthInput.text);
-            int h = Int32.Parse(_heightInput.text);
-            int m = Int32.Parse(_minesInput.text);
+            int w = Int32.Parse(_elements.WidthInput.text);
+            int h = Int32.Parse(_elements.HeightInput.text);
+            int m = Int32.Parse(_elements.MinesInput.text);
             _UI_GameSettings = new GameSettings(w, h, m);
         }
 
@@ -121,22 +119,16 @@ public class UIManager : MonoBehaviour
             Debug.Log("Settings NULL");
             return;
         }
-        _widthInput.text = settings.Width.ToString();
-        _heightInput.text = settings.Height.ToString();
-        _minesInput.text = settings.Mines.ToString();
+        _elements.WidthInput.text = settings.Width.ToString();
+        _elements.HeightInput.text = settings.Height.ToString();
+        _elements.MinesInput.text = settings.Mines.ToString();
     } // called from ReadSettings()
 
     //-----------------------------------------------------------
-    // Music Settings Function Definitions
-    public void MusicSliderUpdate(float val)
+    // "Other Settings" Function Definitions
+    public void BackgroundSliderUpdate(float val)
     {
-        MM.SetVolume(val);
-    }
-
-    public void MusicToggle(bool val)
-    {
-        _musicSlider.interactable = val;
-        MM.SetVolume(val ? _musicSlider.value : 0f);
+        GameObject.Find("Main Camera").GetComponent<Skybox>().material = Elements.Skyboxes[(int) val];
     }
 
     //-------------------------------------
@@ -144,24 +136,24 @@ public class UIManager : MonoBehaviour
 
     public void UpdateTimeText(int time)
     {
-        TimerText.text = "Timer: ";
+        _elements.TimerText.text = "Timer: ";
         if (time < 10)
         {
-            TimerText.text += "00" + time;
+            _elements.TimerText.text += "00" + time;
         }
         else if (time < 100)
         {
-            TimerText.text += "0" + time;
+            _elements.TimerText.text += "0" + time;
         }
         else if (time < 1000)
         {
-            TimerText.text += time.ToString();
+            _elements.TimerText.text += time.ToString();
         }
     }
 
     public void UpdateFlagText(int flagCount)
     {
-        FlagText.text = "Flags: ";
+        _elements.FlagText.text = "Flags: ";
 
         // handle the sign of the counter
         string flagCountText = "";
@@ -182,7 +174,91 @@ public class UIManager : MonoBehaviour
         }
 
         // add the constructed flag count text to the UI Text
-        FlagText.text += flagCountText;
+        _elements.FlagText.text += flagCountText;
 
+    }
+}
+
+[Serializable]
+public class UIElements
+{
+    // UI elements accessed outside of UIManager
+    [SerializeField]
+    private Text _timerText;
+    [SerializeField]
+    private Text _flagText;
+    [SerializeField]
+    private Text _gameStateText;  // won/lost
+
+    // UI elements accessed by only UIManager
+    [SerializeField]
+    private InputField _heightInput;
+    [SerializeField]
+    private InputField _widthInput;
+    [SerializeField]
+    private InputField _minesInput;
+    [SerializeField]
+    private Text _sliderDifficulty;
+
+    [SerializeField]
+    private Material[] _skyboxes;
+
+    // Debug UI variables
+    [SerializeField]
+    private Text _timeScaleText;
+
+
+    // getters & setters
+    public Text TimerText
+    {
+        get { return _timerText; }
+        set { _timerText = value; }
+    }
+
+    public Text FlagText
+    {
+        get { return _flagText; }
+        set { _flagText = value; }
+    }
+
+    public Text TimeScaleText
+    {
+        get { return _timeScaleText; }
+        set { _timeScaleText = value; }
+    }
+
+    public Text GameStateText
+    {
+        get { return _gameStateText; }
+        set { _gameStateText = value; }
+    }
+
+    public InputField HeightInput
+    {
+        get { return _heightInput; }
+        set { _heightInput = value; }
+    }
+
+    public InputField MinesInput
+    {
+        get { return _minesInput; }
+        set { _minesInput = value; }
+    }
+
+    public InputField WidthInput
+    {
+        get { return _widthInput; }
+        set { _widthInput = value; }
+    }
+
+    public Text SliderDifficulty
+    {
+        get { return _sliderDifficulty; }
+        set { _sliderDifficulty = value; }
+    }
+
+    public Material[] Skyboxes
+    {
+        get { return _skyboxes; }
     }
 }

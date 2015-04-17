@@ -63,6 +63,7 @@ public class PlayerInput : MonoBehaviour {
         UI.GetComponentInChildren<Canvas>().enabled = !UI.GetComponentInChildren<Canvas>().enabled;
         IsGamePaused = UI.GetComponentInChildren<Canvas>().enabled; // TODO: FIX PAUSE ISSUE
 
+        GameObject.FindGameObjectWithTag("UILight").GetComponent<Light>().intensity = (UI.GetComponentInChildren<Canvas>().enabled ? 1 : 0);
         //Debug.Log("PLAYERINPUT:: TimeScale: " + Time.timeScale);
     }
 

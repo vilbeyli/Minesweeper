@@ -114,7 +114,7 @@ public class GameManager : MonoBehaviour
 
     public void UpdateFlagCounter(bool condition)
     {
-        _flagCount += condition ? _flagCount : -_flagCount;
+        _flagCount += condition ? 1 : -1;
     }   // true: increment | false: decrement
 
     private void ResetGameState()

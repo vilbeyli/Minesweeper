@@ -23,6 +23,7 @@ public class PlayerInput : MonoBehaviour {
 
     // handles
     public UIManager UI;
+    public Canvas PauseMenu;
 
     //--------------------------------------------------------
     // Function Definitions
@@ -58,12 +59,16 @@ public class PlayerInput : MonoBehaviour {
 
     public void TogglePauseMenu()
     {
-        Time.timeScale = System.Convert.ToSingle(UI.GetComponentInChildren<Canvas>().enabled);
-        UI.GetComponentInChildren<Canvas>().enabled = !UI.GetComponentInChildren<Canvas>().enabled;
-        if(InitialClickIssued && !GameManager.IsGameOver)
-            GameManager.IsGamePaused = UI.GetComponentInChildren<Canvas>().enabled;
+        // Toggle pause menu and companion components
+        //PauseMenu.GetComponentInChildren<Canvas>().enabled = !PauseMenu.enabled; 
+        PauseMenu.enabled = !PauseMenu.enabled;
+        GameObject.FindGameObjectWithTag("UILight").GetComponent<Light>().intensity = (PauseMenu.enabled ? 1 : 0);
 
-        GameObject.FindGameObjectWithTag("UILight").GetComponent<Light>().intensity = (UI.GetComponentInChildren<Canvas>().enabled ? 1 : 0);
+        // update gamestate
+        if(!GameManager.IsGameOver)
+            GameManager.IsGamePaused = PauseMenu.enabled;
+
+        Time.timeScale = System.Convert.ToSingle(!PauseMenu.enabled);
         //Debug.Log("PLAYERINPUT:: TimeScale: " + Time.timeScale);
     }
 

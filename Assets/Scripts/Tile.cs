@@ -84,14 +84,14 @@ public class Tile : MonoBehaviour
     void OnMouseExit()
     {
         // handle player interaction in PlayerInput script
-        if(!PlayerInput.IsGamePaused)
+        if(!GameManager.IsGamePaused)
             _playerInput.OnMouseExit(this);
     }
 
     void OnMouseOver()
     {
         // handle player interaction in PlayerInput script
-        if (!PlayerInput.IsGamePaused)
+        if (!GameManager.IsGamePaused)
             _playerInput.OnMouseOver(this);
     }
 
@@ -223,16 +223,20 @@ public class Tile : MonoBehaviour
     public void ToggleFlag()
     {
         _flagged = !_flagged;
+
+        // tile related changes
         GetComponent<Renderer>().material = _flagged ? Materials[TILE_FLAGGED] : Materials[TILE_UNREVEALED];
 
+        // game state
+        GM.UpdateFlagCounter(_flagged);
+
+        // animation
         if (_flagged)
         {
-            GM.IncrementFlagCounter();
             StartCoroutine("LightUp");
         }
         else
         {
-            GM.DecrementFlagCounter();
             GetComponentInChildren<Light>().enabled = false;
         }
 

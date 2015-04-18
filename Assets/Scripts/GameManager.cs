@@ -9,7 +9,11 @@ public class GameManager : MonoBehaviour
    
     //----------------------------------------
     // Variable Declarations
-    
+
+    // static variables
+    public static bool IsGamePaused;
+    public static bool IsGameOver;
+
     // handles
     public GameObject GridPrefab;
     public UIManager UI;
@@ -56,7 +60,7 @@ public class GameManager : MonoBehaviour
     private void Update()
     {
         UI.UpdateFlagText(_flagCount);
-        if (PlayerInput.InitialClickIssued && !PlayerInput.IsGamePaused)
+        if (PlayerInput.InitialClickIssued && !IsGamePaused && !IsGameOver)
         {
             UI.UpdateTimeText((int) (Time.time - _startTime));
         }
@@ -66,6 +70,7 @@ public class GameManager : MonoBehaviour
     public void StartNewGame(GameSettings settings)
     {
         // delete current grid in the scene & instantiate new grid
+        // using the settings that are read from UI Input fields
         Destroy(GameObject.Find("Grid(Clone)"));
         _gridtf = ((GameObject)Instantiate(GridPrefab, new Vector3(0, 0, 0), Quaternion.identity)).transform;
         _grid = _gridtf.GetComponent<GridScript>();
@@ -74,23 +79,11 @@ public class GameManager : MonoBehaviour
         _settings = settings;
         _grid.GenerateMap(_settings);    // grid manager "_grid" generates the map with given settings
 
-
-        // update handles
+        // update handles in companion scripts
         GetComponent<PlayerInput>().Grid = _grid;
-
-        // close menu
-        UI.GetComponentInChildren<Canvas>().enabled = false;
-        UI.Elements.GameStateText.enabled = false;
-        PlayerInput.IsGamePaused = false;
-        Time.timeScale = 1f;
-        //Debug.Log("PLAYERINPUT:: TimeScale=" + Time.timeScale);
-
-        // reset stats and UI
-        PlayerInput.InitialClickIssued = false;
-        _flagCount = _settings.Mines;
-        UI.UpdateFlagText(_flagCount);
-        UI.UpdateTimeText(0);
-
+        
+        ResetGameState();
+        UI.ResetHUD(_flagCount);
     }
 
     public void StartTimer()
@@ -100,6 +93,7 @@ public class GameManager : MonoBehaviour
 
     public void GameOver(bool win)
     {
+        IsGameOver = true;
         UI.Elements.GameStateText.enabled = true;
         UI.Elements.GameStateText.text = "Game: " + (win ? " Won" : " Lost");
         _endTime = Time.time - _startTime;
@@ -107,7 +101,7 @@ public class GameManager : MonoBehaviour
         
         // set time related data
         //Time.timeScale = 0f;
-        PlayerInput.IsGamePaused = true;
+        IsGamePaused = true;
         if (win)
         {
             int timePassed = (int)(_endTime - _startTime);
@@ -118,34 +112,17 @@ public class GameManager : MonoBehaviour
         
     }
 
-    public void IncrementFlagCounter()
+    public void UpdateFlagCounter(bool condition)
     {
-        _flagCount--;
-    }
+        _flagCount += condition ? _flagCount : -_flagCount;
+    }   // true: increment | false: decrement
 
-    public void DecrementFlagCounter()
+    private void ResetGameState()
     {
-        _flagCount++;
-    }
-
-    // button functions
-    public void NewGameButton()
-    {
-        GameSettings settings = UI.ReadSettings();
-
-        if (settings.isValid())
-            StartNewGame(settings);
-        else
-        {
-            // TODO: INVALID INPUT WARNING
-            Debug.Log("INVALID SETTINGS!");
-            return;
-        }
-    }
-
-    public void RestartButton()
-    {
-        StartNewGame(_settings);
+        PlayerInput.InitialClickIssued = false;
+        IsGamePaused = false;
+        IsGameOver = false;
+        _flagCount = _settings.Mines;
     }
 
     // high score functions
@@ -228,7 +205,7 @@ public class GameManager : MonoBehaviour
 
     string HighScoreFormat(int i, Score score)
     {
-        return "\t" + (i + 1) + "\t\t" + score.Name + "\t\t" + score.TimePassed + "\n";
+        return "\t" + (i + 1) + "\t\t" + score.Name + "\t\t" + score.TimePassed + "\n\n";
     }
 
     public void Detonate(Tile tile)
@@ -305,10 +282,16 @@ public class GameSettings
 
     public bool isValid()
     {
-        if (_width <= 0 || _height <= 0 || _mines <= 0)
+        if  // invalid conditions
+            (
+            (   _width <= 0 || _height <= 0 || _mines <= 0 ) ||
+            (   _mines >= _width*_height                   ) ||
+            (   false                                      )
+            )
+
             return false;
-        if (_mines >= _width*_height)
-            return false;
+
+        // if everything's ok - return true
         return true;
     }
 }

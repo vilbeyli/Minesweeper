@@ -16,7 +16,6 @@ public class PlayerInput : MonoBehaviour {
     private static bool _rightAndLeftPressed;
     private static bool _revealAreaIssued;
     private static bool _initialClickIssued;    // used to track first-click-death and start-timer
-    public static bool IsGamePaused;
 
 
     // private variables
@@ -61,7 +60,8 @@ public class PlayerInput : MonoBehaviour {
     {
         Time.timeScale = System.Convert.ToSingle(UI.GetComponentInChildren<Canvas>().enabled);
         UI.GetComponentInChildren<Canvas>().enabled = !UI.GetComponentInChildren<Canvas>().enabled;
-        IsGamePaused = UI.GetComponentInChildren<Canvas>().enabled; // TODO: FIX PAUSE ISSUE
+        if(InitialClickIssued && !GameManager.IsGameOver)
+            GameManager.IsGamePaused = UI.GetComponentInChildren<Canvas>().enabled;
 
         GameObject.FindGameObjectWithTag("UILight").GetComponent<Light>().intensity = (UI.GetComponentInChildren<Canvas>().enabled ? 1 : 0);
         //Debug.Log("PLAYERINPUT:: TimeScale: " + Time.timeScale);

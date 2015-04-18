@@ -13,11 +13,10 @@ public class UIManager : MonoBehaviour
     private bool _isCustom;
     private GameSettings _UI_GameSettings;
 
-    [SerializeField]
-    private UIElements _elements;
+    [SerializeField] private UIElements _elements;
 
 
-    //-------------------------------------------------------------
+    //===========================================================
     // Function Definitions
 
     // getters & setters
@@ -119,9 +118,9 @@ public class UIManager : MonoBehaviour
             Debug.Log("Settings NULL");
             return;
         }
-        _elements.WidthInput.text = settings.Width.ToString();
-        _elements.HeightInput.text = settings.Height.ToString();
-        _elements.MinesInput.text = settings.Mines.ToString();
+        _elements.WidthInput.text   = settings.Width.ToString();
+        _elements.HeightInput.text  = settings.Height.ToString();
+        _elements.MinesInput.text   = settings.Mines.ToString();
     } // called from ReadSettings()
 
     //-----------------------------------------------------------
@@ -132,7 +131,7 @@ public class UIManager : MonoBehaviour
     }
 
     //-------------------------------------
-    // Scores area
+    // HUD Function definitons
 
     public void UpdateTimeText(int time)
     {
@@ -176,6 +175,35 @@ public class UIManager : MonoBehaviour
         // add the constructed flag count text to the UI Text
         _elements.FlagText.text += flagCountText;
 
+    }
+
+    public void RestartButton()
+    {
+        GM.StartNewGame(GM.Settings);
+    }
+
+    public void NewGameButton()
+    {
+        GameSettings settings = ReadSettings();
+
+        if (settings.isValid())
+        {
+            GM.StartNewGame(settings);
+            GM.GetComponent<PlayerInput>().TogglePauseMenu(); // TODO: close dialogue box if open in toggle funct
+        }
+        else
+        {
+            // TODO: INVALID INPUT WARNING animation (coroutine?)
+            Debug.Log("INVALID SETTINGS!");
+            return;
+        }
+    }
+
+    public void ResetHUD(int flagCount)
+    {
+        Elements.GameStateText.enabled = false;
+        UpdateFlagText(flagCount);
+        UpdateTimeText(0);   
     }
 }
 

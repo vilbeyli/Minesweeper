@@ -114,7 +114,7 @@ public class GameManager : MonoBehaviour
 
     public void UpdateFlagCounter(bool condition)
     {
-        _flagCount += condition ? 1 : -1;
+        _flagCount += condition ? -1 : 1;
     }   // true: increment | false: decrement
 
     private void ResetGameState()
@@ -172,6 +172,7 @@ public class GameManager : MonoBehaviour
 
     void LoadScoresToUI()
     {
+        // TODO: IF condition would be useful not to make too many attempts on db
         // get UI Text objects
         Text beginnerScores, intermediateScores, expertScores;
 
@@ -205,7 +206,7 @@ public class GameManager : MonoBehaviour
 
     string HighScoreFormat(int i, Score score)
     {
-        return "\t" + (i + 1) + "\t\t" + score.Name + "\t\t" + score.TimePassed + "\n\n";
+        return "\t" + (i + 1) + "\t\t" + score.Name + "\t\t\t" + score.TimePassed + "\n\n";
     }
 
     public void Detonate(Tile tile)
@@ -215,19 +216,6 @@ public class GameManager : MonoBehaviour
         Explosions[index].Play();
     }
 }
-
-// SERIALIZE FIELD ???? DOESNT WORK???
-[System.Serializable]
-public class TileOptions
-{
-    [SerializeField]
-    public int a;
-    [SerializeField]
-    public float b = 0.5f;
-    [SerializeField]
-    public bool c = false;
-};
-// ????????????????????????????????????
 
 [System.Serializable]
 public class GameSettings
@@ -286,7 +274,7 @@ public class GameSettings
             (
             (   _width <= 0 || _height <= 0 || _mines <= 0 ) ||
             (   _mines >= _width*_height                   ) ||
-            (   false                                      )
+            (   _height > 24 || _width > 35                )
             )
 
             return false;

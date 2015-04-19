@@ -165,12 +165,14 @@ public class UIManager : MonoBehaviour
         flagCount = Mathf.Abs(flagCount);   // ignore sign
         if (Mathf.Abs(flagCount) < 10)
         {
-            flagCountText += "00" + flagCount;
+            flagCountText += "00";
         }
         else if (Mathf.Abs(flagCount) < 100)
         {
-            flagCountText += "0" + flagCount;
+            flagCountText += "0";
         }
+        flagCountText += flagCount;
+        
 
         // add the constructed flag count text to the UI Text
         _elements.FlagText.text += flagCountText;

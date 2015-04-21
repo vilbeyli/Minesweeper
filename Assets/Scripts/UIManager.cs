@@ -5,7 +5,6 @@ using UnityEngine.UI;
 public class UIManager : MonoBehaviour
 {
 
-
     // handles
     public GameManager GM;
 
@@ -13,17 +12,25 @@ public class UIManager : MonoBehaviour
     private bool _isCustom;
     private GameSettings _UI_GameSettings;
 
-    [SerializeField] private UIElements _elements;
+    [SerializeField] private MenuElements _elements;
+    [SerializeField] private HUDElements _hud;
+    [SerializeField] private DialogueElements _dialogs;
 
 
     //===========================================================
     // Function Definitions
 
     // getters & setters
-    public UIElements Elements
+    public MenuElements Elements
     {
         get { return _elements; }
     }
+        
+    public HUDElements HUD
+    {
+        get { return _hud; }
+        set { _hud = value; }
+    }   // TODO: CHECK ACCESS
 
     // unity functions
     void Awake()
@@ -40,7 +47,7 @@ public class UIManager : MonoBehaviour
 
     void Update()
     {
-        //TimeScaleText.text = Time.timeScale.ToString();
+        _elements.TimeScaleText.text = Time.timeScale.ToString();
     #if UNITY_WEBGL
 
         if (!Screen.fullScreen && (Screen.width != 960 && Screen.width != 800 && Screen.width != 1280))
@@ -130,29 +137,55 @@ public class UIManager : MonoBehaviour
         GameObject.Find("Main Camera").GetComponent<Skybox>().material = Elements.Skyboxes[(int) val];
     }
 
+    //-----------------------------------------------------------
+    // Add Score Button functions
+    public void DisableScoreCanvas()
+    {
+        _dialogs.AddScoreCanvas.enabled = false;
+    }
+
+    public void EnableScoreCanvas(Score score)
+    {
+        _dialogs.AddScoreCanvas.enabled = true;
+        _dialogs.ScoreText.text = score.TimePassed.ToString();
+    }
+
+    public void GameOverButton()
+    {
+        GM.GameOver(true);
+    }
+
+    public void SubmitScore()
+    {
+        // TODO: gama manager - score submit to database
+        // read input into Score(GM).Name and post it
+        //GM.PlayerScore.Name = 
+    }
+
+
     //-------------------------------------
     // HUD Function definitons
 
     public void UpdateTimeText(int time)
     {
-        _elements.TimerText.text = "Timer: ";
+        _hud.TimerText.text = "Timer: ";
         if (time < 10)
         {
-            _elements.TimerText.text += "00" + time;
+            _hud.TimerText.text += "00" + time;
         }
         else if (time < 100)
         {
-            _elements.TimerText.text += "0" + time;
+            _hud.TimerText.text += "0" + time;
         }
         else if (time < 1000)
         {
-            _elements.TimerText.text += time.ToString();
+            _hud.TimerText.text += time.ToString();
         }
     }
 
     public void UpdateFlagText(int flagCount)
     {
-        _elements.FlagText.text = "Flags: ";
+        _hud.FlagText.text = "Flags: ";
 
         // handle the sign of the counter
         string flagCountText = "";
@@ -175,7 +208,7 @@ public class UIManager : MonoBehaviour
         
 
         // add the constructed flag count text to the UI Text
-        _elements.FlagText.text += flagCountText;
+        _hud.FlagText.text += flagCountText;
 
     }
 
@@ -203,64 +236,31 @@ public class UIManager : MonoBehaviour
 
     public void ResetHUD(int flagCount)
     {
-        Elements.GameStateText.enabled = false;
+        HUD.GameStateText.enabled = false;
         UpdateFlagText(flagCount);
         UpdateTimeText(0);   
     }
 }
 
 [Serializable]
-public class UIElements
+public class MenuElements
 {
-    // UI elements accessed outside of UIManager
-    [SerializeField]
-    private Text _timerText;
-    [SerializeField]
-    private Text _flagText;
-    [SerializeField]
-    private Text _gameStateText;  // won/lost
 
-    // UI elements accessed by only UIManager
-    [SerializeField]
-    private InputField _heightInput;
-    [SerializeField]
-    private InputField _widthInput;
-    [SerializeField]
-    private InputField _minesInput;
-    [SerializeField]
-    private Text _sliderDifficulty;
-
-    [SerializeField]
-    private Material[] _skyboxes;
+    // GameOptions Elements
+    [SerializeField] private InputField _heightInput;
+    [SerializeField] private InputField _widthInput;
+    [SerializeField] private InputField _minesInput;
+    [SerializeField] private Text _sliderDifficulty;
+    [SerializeField] private Material[] _skyboxes;
 
     // Debug UI variables
-    [SerializeField]
-    private Text _timeScaleText;
-
+    [SerializeField] private Text _timeScaleText;
 
     // getters & setters
-    public Text TimerText
-    {
-        get { return _timerText; }
-        set { _timerText = value; }
-    }
-
-    public Text FlagText
-    {
-        get { return _flagText; }
-        set { _flagText = value; }
-    }
-
     public Text TimeScaleText
     {
         get { return _timeScaleText; }
         set { _timeScaleText = value; }
-    }
-
-    public Text GameStateText
-    {
-        get { return _gameStateText; }
-        set { _gameStateText = value; }
     }
 
     public InputField HeightInput
@@ -292,3 +292,58 @@ public class UIElements
         get { return _skyboxes; }
     }
 }
+
+[Serializable]
+public class HUDElements
+{
+    [SerializeField] private Text _timerText;
+    [SerializeField] private Text _flagText;
+    [SerializeField] private Text _gameStateText;  // won/lost
+
+
+    // getters & setters
+    public Text TimerText
+    {
+        get { return _timerText; }
+        set { _timerText = value; }
+    }
+
+    public Text FlagText
+    {
+        get { return _flagText; }
+        set { _flagText = value; }
+    }
+
+    public Text GameStateText
+    {
+        get { return _gameStateText; }
+        set { _gameStateText = value; }
+    }
+}
+
+[Serializable]
+public class DialogueElements
+{
+    [SerializeField] private Canvas _addScoreCanvas;
+    [SerializeField] private Text _nameInputText;
+    [SerializeField] private Text _scoreText;
+
+    public Text ScoreText
+    {
+        get { return _scoreText; }
+        set { _scoreText = value; }
+    }
+
+    public Canvas AddScoreCanvas
+    {
+        get { return _addScoreCanvas; }
+        set { _addScoreCanvas = value; }
+    }
+
+    public Text NameInputText
+    {
+        get { return _nameInputText; }
+        set { _nameInputText = value; }
+    }
+}
+

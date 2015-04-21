@@ -29,8 +29,7 @@ public class GameManager : MonoBehaviour
     private float _endTime;
     private int _flagCount;
 
-    private Score score;
-    private List<List<Score>> _highScores; 
+    private Score _playerScore;
 
 
     //-----------------------------------------
@@ -43,6 +42,11 @@ public class GameManager : MonoBehaviour
         set { _settings = value; }
     }
 
+    public Score PlayerScore
+    {
+        get { return _playerScore; }
+    }
+
     // unity functions
     void Awake()
     {
@@ -53,7 +57,6 @@ public class GameManager : MonoBehaviour
 
     void Start ()
     {
-        GetHighScores();
         StartNewGame(_settings);
     }
 
@@ -94,8 +97,8 @@ public class GameManager : MonoBehaviour
     public void GameOver(bool win)
     {
         IsGameOver = true;
-        UI.Elements.GameStateText.enabled = true;
-        UI.Elements.GameStateText.text = "Game: " + (win ? " Won" : " Lost");
+        UI.HUD.GameStateText.enabled = true;
+        UI.HUD.GameStateText.text = "Game: " + (win ? " Won" : " Lost");
         _endTime = Time.time - _startTime;
         Debug.Log("GAME ENDED IN " + (_endTime - _startTime) + " SECONDS. GAME WON:" + win);
         
@@ -104,10 +107,19 @@ public class GameManager : MonoBehaviour
         IsGamePaused = true;
         if (win)
         {
-            int timePassed = (int)(_endTime - _startTime);
-            score = new Score(timePassed);
+            float timePassed = _endTime - _startTime;
+
+            if (_settings == GameSettings.Beginner)     _playerScore = new Score(timePassed, "beginner");
+            if (_settings == GameSettings.Intermediate) _playerScore = new Score(timePassed, "intermediate");
+            if (_settings == GameSettings.Expert)       _playerScore = new Score(timePassed, "expert");
 
             // TODO: HIGHSCORES if score in top 10, ask user input, put on leaderboard
+
+            // if score top 10 of its difficulty
+            if (true)
+            {
+                UI.EnableScoreCanvas(_playerScore);
+            }
         }
         
     }
@@ -125,90 +137,6 @@ public class GameManager : MonoBehaviour
         _flagCount = _settings.Mines;
     }
 
-    // high score functions
-    void GetHighScores()
-    {
-        _highScores = new List<List<Score>>();
-        // ReadDatabase()
-        CreateDummyScores();
-        
-        LoadScoresToUI();
-    }
-
-    //TODO: read database function
-
-    void CreateDummyScores()
-    {
-        int baseScore;
-
-         // 3 databases: 1 for each difficulty
-        _highScores.Add(new List<Score>()); // 0: Beginner
-        _highScores.Add(new List<Score>()); // 1: Intermediate
-        _highScores.Add(new List<Score>()); // 2: Expert
-        
-        for (int i = 0; i < 3; i++)
-        {
-            baseScore = (i + 1)*5;  // 5-6-7... beginner, 10-11-12... intermediate...
-            for (int j = 0; j < 10; j++)
-            {
-                switch (i)
-                {
-                    case 0:
-                        _highScores[i].Add(new Score(baseScore + j));
-                        break;
-
-                    case 1:
-                        _highScores[i].Add(new Score(baseScore + j));
-                        break;
-
-                    case 2:
-                        _highScores[i].Add(new Score(baseScore + j));
-                        break;
-                }
-                
-            }
-        }
-    }
-
-    void LoadScoresToUI()
-    {
-        // TODO: IF condition would be useful not to make too many attempts on db
-        // get UI Text objects
-        Text beginnerScores, intermediateScores, expertScores;
-
-        beginnerScores = GameObject.Find("Beginner_Scores").GetComponent<Text>();
-        intermediateScores = GameObject.Find("Intermediate_Scores").GetComponent<Text>();
-        expertScores = GameObject.Find("Expert_Scores").GetComponent<Text>();
-
-        if (beginnerScores == null || intermediateScores == null || expertScores == null)
-        {
-            Debug.Log("GAMEMANAGER:: LOADSCORESTOUI:: NULL HANDLES!");
-            return;
-        }
-
-        // construct text to be displayed in UI elements
-        String beginnerScoresText, intermediateScoresText, expertScoresText;
-        beginnerScoresText = intermediateScoresText = expertScoresText = "";
-
-        for (int j = 0; j < _highScores[0].Count; j++)
-            beginnerScoresText += HighScoreFormat(j, _highScores[0][j]); 
-        for (int j = 0; j < _highScores[1].Count; j++)
-            intermediateScoresText += HighScoreFormat(j, _highScores[1][j]); 
-        for (int j = 0; j < _highScores[2].Count; j++)
-            expertScoresText += HighScoreFormat(j, _highScores[2][j]); 
-
-
-        // update UI elements' text fields
-        beginnerScores.text = beginnerScoresText;
-        intermediateScores.text = intermediateScoresText;
-        expertScores.text = expertScoresText;
-    }
-
-    string HighScoreFormat(int i, Score score)
-    {
-        return "\t" + (i + 1) + "\t\t" + score.Name + "\t\t\t" + score.TimePassed + "\n\n";
-    }
-
     public void Detonate(Tile tile)
     {
         int index = Random.Range(0, Explosions.Length);
@@ -217,7 +145,7 @@ public class GameManager : MonoBehaviour
     }
 }
 
-[System.Serializable]
+[Serializable]
 public class GameSettings
 {
     // static constant settings
@@ -272,25 +200,31 @@ public class GameSettings
     {
         if  // invalid conditions
             (
-            (   _width <= 0 || _height <= 0 || _mines <= 0 ) ||
-            (   _mines >= _width*_height                   ) ||
-            (   _height > 24 || _width > 35                )
+            (   _width <= 0 || _height <= 0 || _mines <= 0 ) || // no negative
+            (   _mines >= _width*_height                   ) || // no impossible game ( m > w*h )
+            (   _height > 24 || _width > 35                )    // no screen overflow 
             )
 
             return false;
 
-        // if everything's ok - return true
+        // if everything's ok, return true
         return true;
     }
 }
 
-[System.Serializable]
+[Serializable]
 public class Score
 {
-    private int _timePassed;
+    private float _timePassed;
     private string _name;
+    private string _difficulty;
 
-    public int TimePassed
+    public string Difficulty
+    {
+        get { return _difficulty; }
+    }
+
+    public float TimePassed
     {
         get { return _timePassed; }
     }
@@ -301,15 +235,22 @@ public class Score
         set { _name = value; }
     }
 
-    public Score(int timePassed)
+    public Score(float timePassed)
     {
         _timePassed = timePassed;
-        _name = "Anon" + timePassed.ToString();
+        _name = "anon" + (int)_timePassed;
     }
 
-    public Score(int timePassed, string name)
+    public Score(string name, float timePassed)
     {
         _timePassed = timePassed;
         _name = name;
     }
+
+    public Score(float timePassed, string difficulty)
+    {
+        _timePassed = timePassed;
+        _difficulty = difficulty;
+    }
+
 }

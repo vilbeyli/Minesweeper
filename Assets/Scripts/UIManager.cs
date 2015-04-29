@@ -14,7 +14,7 @@ public class UIManager : MonoBehaviour
 
     [SerializeField] private MenuElements _elements;
     [SerializeField] private HUDElements _hud;
-    [SerializeField] private DialogueElements _dialogs;
+    [SerializeField] private ScoreElements _dialogs;
 
 
     //===========================================================
@@ -30,7 +30,7 @@ public class UIManager : MonoBehaviour
     {
         get { return _hud; }
         set { _hud = value; }
-    }   // TODO: CHECK ACCESS
+    }   // TODO: CHECK ACCESS ??
 
     // unity functions
     void Awake()
@@ -131,6 +131,24 @@ public class UIManager : MonoBehaviour
     } // called from ReadSettings()
 
     //-----------------------------------------------------------
+    // Game Options Error dialogue options
+
+    public void EnableInputErrorDialogue()
+    {
+        _elements.InputErrorCanvas.enabled = true;
+    }
+
+    public void DisableInputErrorDialogue()
+    {
+        _elements.InputErrorCanvas.enabled = false;
+    }
+
+    public void ToggleInputErrorDialogue()
+    {
+        _elements.InputErrorCanvas.enabled = !_elements.InputErrorCanvas.enabled;
+    }
+
+    //-----------------------------------------------------------
     // "Other Settings" Function Definitions
     public void BackgroundSliderUpdate(float val)
     {
@@ -150,6 +168,8 @@ public class UIManager : MonoBehaviour
         _dialogs.ScoreText.text = score.TimePassed.ToString();
     }
 
+    //-----------------------------------------------------------
+    // Scores functions
     public void GameOverButton()
     {
         GM.GameOver(true);
@@ -157,7 +177,7 @@ public class UIManager : MonoBehaviour
 
     public void SubmitScore()
     {
-        // TODO: gama manager - score submit to database
+        // TODO: game manager - score submit to database
         // read input into Score(GM).Name and post it
         //GM.PlayerScore.Name = 
     }
@@ -223,14 +243,14 @@ public class UIManager : MonoBehaviour
 
         if (settings.isValid())
         {
+            DisableInputErrorDialogue();
             GM.StartNewGame(settings);
             GM.GetComponent<PlayerInput>().TogglePauseMenu(); // TODO: close dialogue box if open in toggle funct
         }
         else
         {
-            // TODO: INVALID INPUT WARNING animation (coroutine?)
+            EnableInputErrorDialogue();
             Debug.Log("INVALID SETTINGS!");
-            return;
         }
     }
 
@@ -252,6 +272,7 @@ public class MenuElements
     [SerializeField] private InputField _minesInput;
     [SerializeField] private Text _sliderDifficulty;
     [SerializeField] private Material[] _skyboxes;
+    [SerializeField] private Canvas _inputErrorCanvas;
 
     // Debug UI variables
     [SerializeField] private Text _timeScaleText;
@@ -291,6 +312,11 @@ public class MenuElements
     {
         get { return _skyboxes; }
     }
+
+    public Canvas InputErrorCanvas
+    {
+        get { return _inputErrorCanvas; }
+    }
 }
 
 [Serializable]
@@ -322,7 +348,7 @@ public class HUDElements
 }
 
 [Serializable]
-public class DialogueElements
+public class ScoreElements
 {
     [SerializeField] private Canvas _addScoreCanvas;
     [SerializeField] private Text _nameInputText;

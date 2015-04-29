@@ -118,7 +118,7 @@ public class GameManager : MonoBehaviour
             // if score top 10 of its difficulty
             if (true)
             {
-                UI.EnableScoreCanvas(_playerScore);
+                ; //UI.EnableScoreCanvas(_playerScore);
             }
         }
         

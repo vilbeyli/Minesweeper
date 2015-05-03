@@ -31,7 +31,6 @@ public class GameManager : MonoBehaviour
 
     private Score _playerScore;
 
-
     //-----------------------------------------
     // Function Definitions
 
@@ -42,10 +41,6 @@ public class GameManager : MonoBehaviour
         set { _settings = value; }
     }
 
-    public Score PlayerScore
-    {
-        get { return _playerScore; }
-    }
 
     // unity functions
     void Awake()
@@ -100,29 +95,35 @@ public class GameManager : MonoBehaviour
         UI.HUD.GameStateText.enabled = true;
         UI.HUD.GameStateText.text = "Game: " + (win ? " Won" : " Lost");
         _endTime = Time.time - _startTime;
-        Debug.Log("GAME ENDED IN " + (_endTime - _startTime) + " SECONDS. GAME WON:" + win);
+        Debug.Log("GAME ENDED IN " + _endTime + " SECONDS. GAME WON:" + win);
         
         // set time related data
         //Time.timeScale = 0f;
         IsGamePaused = true;
         if (win)
         {
-            float timePassed = _endTime - _startTime;
-
-            if (_settings == GameSettings.Beginner)     _playerScore = new Score(timePassed, "beginner");
-            if (_settings == GameSettings.Intermediate) _playerScore = new Score(timePassed, "intermediate");
-            if (_settings == GameSettings.Expert)       _playerScore = new Score(timePassed, "expert");
+            if (_settings == GameSettings.Beginner)     _playerScore = new Score(_endTime, "beginner");
+            if (_settings == GameSettings.Intermediate) _playerScore = new Score(_endTime, "intermediate");
+            if (_settings == GameSettings.Expert)       _playerScore = new Score(_endTime, "expert");
 
             // TODO: HIGHSCORES if score in top 10, ask user input, put on leaderboard
 
             // if score top 10 of its difficulty
             if (true)
             {
-                ; //UI.EnableScoreCanvas(_playerScore);
+                UI.EnableScoreCanvas(_playerScore);
             }
         }
         
     }
+
+    public void SubmitPlayerScore(string name)
+    {
+        _playerScore.Name = name;
+        GetComponent<ScoreManager>().PostScore(_playerScore);
+    }
+
+    
 
     public void UpdateFlagCounter(bool condition)
     {
@@ -253,4 +254,14 @@ public class Score
         _difficulty = difficulty;
     }
 
+    public string print()
+    {
+        string s = "";
+
+        s += "Name: " + _name + "\n"
+             + "Score: " + _timePassed + "\n"
+             + "Difficulty: " + _difficulty;
+
+        return s;
+    }
 }

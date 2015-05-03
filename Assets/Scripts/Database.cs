@@ -20,27 +20,10 @@ public class Database : MonoBehaviour {
 
     // private variables
     private string TopScoresURL = "http://ilbeyli.byethost18.com/leaderboard/topscores.php";
+    private string AddScoreURL = "http://ilbeyli.byethost18.com/leaderboard/addscore.php?";
  
     //======================================
     // Function Definitions
- 
-    // getters & setters
- 
-    // unity functions
-	void Awake ()
-	{
-	
-	}
-	
-	void Start ()
-	{
-
-	}
-	
-	void Update () 
-    {
-	
-	}
  
     // member functions
     public void GetScores(List<List<Score>> highScores)
@@ -92,9 +75,6 @@ public class Database : MonoBehaviour {
             string[] textlist = GetScoresAttempt.text.Split(new string[] { "\n", "\t" },
                 StringSplitOptions.RemoveEmptyEntries);
 
-            foreach (string s in textlist)
-                ;//Debug.Log(s);
-
 
             // iteration count = textlist length/3 (Name/Score/Difficulty)
             for (int i = 0; i < textlist.Length; i += 3)
@@ -117,5 +97,51 @@ public class Database : MonoBehaviour {
         
     }
 
-   
+    public IEnumerator SubmitScore(Score score)
+    {
+
+        string privateKey = "pKey";
+        string hash = Md5Sum(score.Name + score.TimePassed + score.Difficulty + privateKey);
+
+        Debug.Log("SUBMITTING: " + score.print());
+        Debug.Log("Name: " + score.Name + " Escape: " + WWW.EscapeURL(score.Name));
+
+        WWW ScorePost = new WWW(AddScoreURL + "name=" + WWW.EscapeURL(score.Name) + "&score=" + score.TimePassed + "&difficulty=" + score.Difficulty + "&hash=" + hash);
+        yield return ScorePost;
+
+        if (ScorePost.error == null)
+        {
+            // NO ERROR - CONTINUE POST PROCESSING
+            Debug.Log("SCORE POSTED SUCECSSFULLY!");
+            GetComponent<GameManager>().UI.DisableScoreCanvas();
+            ScoreManager.DBReadSuccessful = false;
+
+        }
+        else
+        {
+            Debug.Log("Error posting results: " + ScorePost.error);
+        }
+
+        yield return new WaitForSeconds(2);
+    }
+
+    public string Md5Sum(string strToEncrypt)
+    {
+        System.Text.UTF8Encoding ue = new System.Text.UTF8Encoding();
+        byte[] bytes = ue.GetBytes(strToEncrypt);
+
+        // encrypt bytes
+        System.Security.Cryptography.MD5CryptoServiceProvider md5 = new System.Security.Cryptography.MD5CryptoServiceProvider();
+        byte[] hashBytes = md5.ComputeHash(bytes);
+
+        // Convert the encrypted bytes back to a string (base 16)
+        string hashString = "";
+
+        for (int i = 0; i < hashBytes.Length; i++)
+        {
+            hashString += System.Convert.ToString(hashBytes[i], 16).PadLeft(2, '0');
+        }
+
+        return hashString.PadLeft(32, '0');
+    }
 }

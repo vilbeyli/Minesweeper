@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text.RegularExpressions;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -12,18 +13,18 @@ public class UIManager : MonoBehaviour
     private bool _isCustom;
     private GameSettings _UI_GameSettings;
 
-    [SerializeField] private MenuElements _elements;
+    [SerializeField] private MenuElements _menu;
     [SerializeField] private HUDElements _hud;
-    [SerializeField] private ScoreElements _dialogs;
+    [SerializeField] private ScoreElements _score;
 
 
     //===========================================================
     // Function Definitions
 
     // getters & setters
-    public MenuElements Elements
+    public MenuElements Menu
     {
-        get { return _elements; }
+        get { return _menu; }
     }
         
     public HUDElements HUD
@@ -47,15 +48,15 @@ public class UIManager : MonoBehaviour
 
     void Update()
     {
-        _elements.TimeScaleText.text = Time.timeScale.ToString();
-    #if UNITY_WEBGL
+        _menu.TimeScaleText.text = Time.timeScale.ToString();
+/*    #if UNITY_WEBGL
 
         if (!Screen.fullScreen && (Screen.width != 960 && Screen.width != 800 && Screen.width != 1280))
         {
             Screen.SetResolution(960, 600, false);
         }
 
-    #endif
+    #endif  */
     }
 
     //-----------------------------------------------------------
@@ -67,21 +68,21 @@ public class UIManager : MonoBehaviour
         switch (sliderValue)
         {
             case 0:     // beginner settings
-                _elements.SliderDifficulty.text = "Beginner";
+                _menu.SliderDifficulty.text = "Beginner";
                 _UI_GameSettings = GameSettings.Beginner;
                 break;
 
             case 1:     // intermediate settings
-                _elements.SliderDifficulty.text = "Intermediate";
+                _menu.SliderDifficulty.text = "Intermediate";
                 _UI_GameSettings = GameSettings.Intermediate;
                 break;
 
             case 2:     // expert settings
-                _elements.SliderDifficulty.text = "Expert";
+                _menu.SliderDifficulty.text = "Expert";
                 _UI_GameSettings = GameSettings.Expert;
                 break;
             case 3:
-                _elements.SliderDifficulty.text = "Custom";
+                _menu.SliderDifficulty.text = "Custom";
                 break;
         }
 
@@ -97,9 +98,9 @@ public class UIManager : MonoBehaviour
     void SetCustomSettings(bool isCustom)
     {
         // set interactability
-        _elements.WidthInput.interactable = isCustom;
-        _elements.HeightInput.interactable = isCustom;
-        _elements.MinesInput.interactable = isCustom;
+        _menu.WidthInput.interactable = isCustom;
+        _menu.HeightInput.interactable = isCustom;
+        _menu.MinesInput.interactable = isCustom;
         _isCustom = isCustom;
 
         //Debug.Log("MinesInput: " + _minesInput.IsInteractable());
@@ -109,9 +110,9 @@ public class UIManager : MonoBehaviour
     {
         if (_isCustom)
         {
-            int w = Int32.Parse(_elements.WidthInput.text);
-            int h = Int32.Parse(_elements.HeightInput.text);
-            int m = Int32.Parse(_elements.MinesInput.text);
+            int w = Int32.Parse(_menu.WidthInput.text);
+            int h = Int32.Parse(_menu.HeightInput.text);
+            int m = Int32.Parse(_menu.MinesInput.text);
             _UI_GameSettings = new GameSettings(w, h, m);
         }
 
@@ -125,9 +126,9 @@ public class UIManager : MonoBehaviour
             Debug.Log("Settings NULL");
             return;
         }
-        _elements.WidthInput.text   = settings.Width.ToString();
-        _elements.HeightInput.text  = settings.Height.ToString();
-        _elements.MinesInput.text   = settings.Mines.ToString();
+        _menu.WidthInput.text   = settings.Width.ToString();
+        _menu.HeightInput.text  = settings.Height.ToString();
+        _menu.MinesInput.text   = settings.Mines.ToString();
     } // called from ReadSettings()
 
     //-----------------------------------------------------------
@@ -135,37 +136,38 @@ public class UIManager : MonoBehaviour
 
     public void EnableInputErrorDialogue()
     {
-        _elements.InputErrorCanvas.enabled = true;
+        _menu.InputErrorCanvas.enabled = true;
     }
 
     public void DisableInputErrorDialogue()
     {
-        _elements.InputErrorCanvas.enabled = false;
+        _menu.InputErrorCanvas.enabled = false;
     }
 
     public void ToggleInputErrorDialogue()
     {
-        _elements.InputErrorCanvas.enabled = !_elements.InputErrorCanvas.enabled;
+        _menu.InputErrorCanvas.enabled = !_menu.InputErrorCanvas.enabled;
     }
 
     //-----------------------------------------------------------
     // "Other Settings" Function Definitions
     public void BackgroundSliderUpdate(float val)
     {
-        GameObject.Find("Main Camera").GetComponent<Skybox>().material = Elements.Skyboxes[(int) val];
+        GameObject.Find("Main Camera").GetComponent<Skybox>().material = Menu.Skyboxes[(int) val];
     }
 
     //-----------------------------------------------------------
     // Add Score Button functions
     public void DisableScoreCanvas()
     {
-        _dialogs.AddScoreCanvas.enabled = false;
+        _score.AddScoreCanvas.enabled = false;
     }
 
     public void EnableScoreCanvas(Score score)
     {
-        _dialogs.AddScoreCanvas.enabled = true;
-        _dialogs.ScoreText.text = score.TimePassed.ToString();
+        _score.NameInputText.text = "";
+        _score.ScoreText.text = score.TimePassed.ToString();
+        _score.AddScoreCanvas.enabled = true;
     }
 
     //-----------------------------------------------------------
@@ -177,11 +179,49 @@ public class UIManager : MonoBehaviour
 
     public void SubmitScore()
     {
-        // TODO: game manager - score submit to database
-        // read input into Score(GM).Name and post it
-        //GM.PlayerScore.Name = 
+        string name = _score.NameInputText.text;
+
+        if (isValid(name))
+        {
+            //GM.GetComponent<ScoreManager>()
+            GM.SubmitPlayerScore(name);
+            DisableScoreCanvas();
+        }
+        else 
+        {
+            Debug.Log("INCORRECT INPUT FORMAT");
+            DisplayErrorMessage(name);
+        }
     }
 
+
+    bool isValid(string s)
+    {
+        Regex regex = new Regex("^[a-zA-Z0-9]*$");
+            
+        // Rules: 
+        // String Cant be Empty
+        //              String only Alphanumerical
+        //                                  String length max 10
+        if (s == "" || !regex.IsMatch(s) || s.Length > 10)
+            return false;
+
+        return true;
+    }
+
+    void DisplayErrorMessage(string s)
+    {
+        Regex regex = new Regex("^[a-zA-Z0-9]*$");
+
+        if (s == "")                    ToggleErrorMsg("Username cannot be empty");
+        else if (!regex.IsMatch(s))     ToggleErrorMsg("Username can only consist alpha-numberic characters");
+        else if (s.Length > 10)         ToggleErrorMsg("Username cannot be longer than 10 characters");
+    }
+
+    void ToggleErrorMsg(string err)
+    {
+        
+    }
 
     //-------------------------------------
     // HUD Function definitons

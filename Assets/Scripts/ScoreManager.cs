@@ -30,19 +30,6 @@ public class ScoreManager : MonoBehaviour
  
     //======================================
     // Function Definitions
- 
-    // getters & setters
- 
-    // unity functions
-	void Awake ()
-	{
-	
-	}
-	
-	void Start ()
-	{
-
-	}
 	
 	void Update () 
     {
@@ -107,4 +94,13 @@ public class ScoreManager : MonoBehaviour
     {
         return "\t" + (i + 1) + "\t\t" + score.Name + "\t\t\t" + score.TimePassed + "\n\n";
     }
+
+    // score submission
+    public void PostScore(Score score)
+    {
+        StartCoroutine(GetComponent<Database>().SubmitScore(score));
+    }
+
+    
+
 }

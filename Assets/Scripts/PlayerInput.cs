@@ -109,7 +109,11 @@ public class PlayerInput : MonoBehaviour {
                     GetComponent<GameManager>().StartTimer();
                 }
 
-                tile.Reveal();
+                else
+                {
+                    if(!Input.GetMouseButton(1))
+                        tile.Reveal();
+                }
             }
                 
         }

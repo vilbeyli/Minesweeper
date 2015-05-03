@@ -113,7 +113,7 @@ public class UIManager : MonoBehaviour
             int w = Int32.Parse(_menu.WidthInput.text);
             int h = Int32.Parse(_menu.HeightInput.text);
             int m = Int32.Parse(_menu.MinesInput.text);
-            _UI_GameSettings = new GameSettings(w, h, m);
+            _UI_GameSettings = new GameSettings(w, h, m, "custom");
         }
 
         return _UI_GameSettings;
@@ -183,8 +183,7 @@ public class UIManager : MonoBehaviour
 
         if (isValid(name))
         {
-            //GM.GetComponent<ScoreManager>()
-            GM.SubmitPlayerScore(name);
+            GM.GetComponent<ScoreManager>().PostScore(name);
             DisableScoreCanvas();
         }
         else 
@@ -193,7 +192,6 @@ public class UIManager : MonoBehaviour
             DisplayErrorMessage(name);
         }
     }
-
 
     bool isValid(string s)
     {

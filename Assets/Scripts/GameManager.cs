@@ -19,17 +19,16 @@ public class GameManager : MonoBehaviour
     public UIManager UI;
     private GridScript _grid;
     public ParticleSystem[] Explosions;
+    private ScoreManager _scoreManager;
 
     // private variables
     private Transform _gridtf;
     private GameSettings _settings;
 
     // score variables
-    private float _startTime;
-    private float _endTime;
+    private float _startTime;   // needed for time counter
+    private float _endTime;     // constitutes score
     private int _flagCount;
-
-    private Score _playerScore;
 
     //-----------------------------------------
     // Function Definitions
@@ -47,6 +46,7 @@ public class GameManager : MonoBehaviour
     {
         _settings = new GameSettings();
         _settings = GameSettings.Intermediate;
+        _scoreManager = GetComponent<ScoreManager>();
 
     }
 
@@ -95,35 +95,25 @@ public class GameManager : MonoBehaviour
         UI.HUD.GameStateText.enabled = true;
         UI.HUD.GameStateText.text = "Game: " + (win ? " Won" : " Lost");
         _endTime = Time.time - _startTime;
-        Debug.Log("GAME ENDED IN " + _endTime + " SECONDS. GAME WON:" + win);
+        Debug.Log("GAME WON:" + win + " | GAME ENDED IN " + _endTime + " SECONDS.");
         
         // set time related data
         //Time.timeScale = 0f;
         IsGamePaused = true;
-        if (win)
+        if (win && _settings.Name != "custom") 
         {
-            if (_settings == GameSettings.Beginner)     _playerScore = new Score(_endTime, "beginner");
-            if (_settings == GameSettings.Intermediate) _playerScore = new Score(_endTime, "intermediate");
-            if (_settings == GameSettings.Expert)       _playerScore = new Score(_endTime, "expert");
+            _scoreManager.PlayerScore = new Score(_endTime, _settings.Name);
 
             // TODO: HIGHSCORES if score in top 10, ask user input, put on leaderboard
 
             // if score top 10 of its difficulty
             if (true)
             {
-                UI.EnableScoreCanvas(_playerScore);
+                UI.EnableScoreCanvas(_scoreManager.PlayerScore);
             }
         }
         
     }
-
-    public void SubmitPlayerScore(string name)
-    {
-        _playerScore.Name = name;
-        GetComponent<ScoreManager>().PostScore(_playerScore);
-    }
-
-    
 
     public void UpdateFlagCounter(bool condition)
     {
@@ -150,17 +140,15 @@ public class GameManager : MonoBehaviour
 public class GameSettings
 {
     // static constant settings
-    public static readonly GameSettings Beginner = new GameSettings(9, 9, 10);
-    public static readonly GameSettings Intermediate = new GameSettings(16, 16, 40);
-    public static readonly GameSettings Expert = new GameSettings(30, 16, 99);
+    public static readonly GameSettings Beginner = new GameSettings(9, 9, 10, "beginner");
+    public static readonly GameSettings Intermediate = new GameSettings(16, 16, 40, "intermediate");
+    public static readonly GameSettings Expert = new GameSettings(30, 16, 99, "expert");
     
     // fields
-    [SerializeField]
-    private int _height;
-    [SerializeField]
-    private int _width;
-    [SerializeField]
-    private int _mines;
+    [SerializeField] private int _height;
+    [SerializeField] private int _width;
+    [SerializeField] private int _mines;
+    [SerializeField] private string _name;  // setting name is a key in DB
 
     public int Height
     {
@@ -177,12 +165,19 @@ public class GameSettings
         get { return _mines; }
     }
 
+    public string Name
+    {
+        get { return _name; }
+        set { _name = value; }
+    }
 
-    public GameSettings(int w, int h, int m)
+
+    public GameSettings(int w, int h, int m, string s)
     {
         _width = w;
         _height = h;
         _mines = m;
+        _name = s;
     }
 
     public GameSettings()
@@ -213,55 +208,3 @@ public class GameSettings
     }
 }
 
-[Serializable]
-public class Score
-{
-    private float _timePassed;
-    private string _name;
-    private string _difficulty;
-
-    public string Difficulty
-    {
-        get { return _difficulty; }
-    }
-
-    public float TimePassed
-    {
-        get { return _timePassed; }
-    }
-
-    public string Name
-    {
-        get { return _name; }
-        set { _name = value; }
-    }
-
-    public Score(float timePassed)
-    {
-        _timePassed = timePassed;
-        _name = "anon" + (int)_timePassed;
-    }
-
-    public Score(string name, float timePassed)
-    {
-        _timePassed = timePassed;
-        _name = name;
-    }
-
-    public Score(float timePassed, string difficulty)
-    {
-        _timePassed = timePassed;
-        _difficulty = difficulty;
-    }
-
-    public string print()
-    {
-        string s = "";
-
-        s += "Name: " + _name + "\n"
-             + "Score: " + _timePassed + "\n"
-             + "Difficulty: " + _difficulty;
-
-        return s;
-    }
-}

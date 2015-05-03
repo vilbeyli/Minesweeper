@@ -21,13 +21,19 @@ public class ScoreManager : MonoBehaviour
 
     // private variables
     private List<List<Score>> _highScores;
-
     private float _nextDbAttempt;
+    private Score _playerScore;
 
     // public variables
     public float DBRetryInterval;
- 
- 
+
+    public Score PlayerScore
+    {
+        get { return _playerScore; }
+        set { _playerScore = value; }
+    }
+
+
     //======================================
     // Function Definitions
 	
@@ -92,15 +98,96 @@ public class ScoreManager : MonoBehaviour
 
     string HighScoreFormat(int i, Score score)
     {
-        return "\t" + (i + 1) + "\t\t" + score.Name + "\t\t\t" + score.TimePassed + "\n\n";
+
+        string s = "\t" + (i+1);      
+        s += i == 9 ? "\t" : "\t\t";   // use 1 tab on 2 digits (i==9)
+        s += score.Name;
+
+        switch (score.Name.Length)
+        {
+            case 1:
+            case 2:
+            case 3:
+            case 4:
+                s += "\t\t\t\t";
+                break;
+            case 5:
+            case 6:
+                s += "\t\t\t";
+                break;
+            case 7:
+            case 8:
+            case 9:
+                s += "\t\t";
+                break;
+            default:
+                s += "\t";
+                break;
+        }
+
+        s += score.TimePassed.ToString("0.00") + "\n\n";
+
+        return s;
     }
 
     // score submission
-    public void PostScore(Score score)
+    public void PostScore(string name)
     {
-        StartCoroutine(GetComponent<Database>().SubmitScore(score));
+        _playerScore.Name = name;
+        StartCoroutine(GetComponent<Database>().SubmitScore(_playerScore));
     }
 
-    
+}
 
+[Serializable]
+public class Score
+{
+    private float _timePassed;
+    private string _name;
+    private string _difficulty;
+
+    public string Difficulty
+    {
+        get { return _difficulty; }
+    }
+
+    public float TimePassed
+    {
+        get { return _timePassed; }
+    }
+
+    public string Name
+    {
+        get { return _name; }
+        set { _name = value; }
+    }
+
+    public Score(float timePassed)
+    {
+        _timePassed = timePassed;
+        _name = "anon" + (int)_timePassed;
+    }
+
+    public Score(string name, float timePassed)
+    {
+        _timePassed = timePassed;
+        _name = name;
+    }
+
+    public Score(float timePassed, string difficulty)
+    {
+        _timePassed = timePassed;
+        _difficulty = difficulty;
+    }
+
+    public string print()
+    {
+        string s = "";
+
+        s += "Name: " + _name + "\n"
+             + "Score: " + _timePassed + "\n"
+             + "Difficulty: " + _difficulty;
+
+        return s;
+    }
 }

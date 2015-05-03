@@ -68,7 +68,6 @@ public class Database : MonoBehaviour {
         }
         else
         {
-            Debug.Log("Good: ");
             ScoreManager.DBReadSuccessful = true;
 
             // textlist: (Name/Score/Difficulty) * ScoreCount

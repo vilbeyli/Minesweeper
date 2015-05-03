@@ -95,34 +95,11 @@ public class PlayerInput : MonoBehaviour {
             }
         }
 
-        // LEFT RELEASE: REVEAL
-        if (Input.GetMouseButtonUp(0) && !_revealAreaIssued)
-        {
-            if (!tile.IsFlagged() && !tile.IsRevealed())
-            {
-                if (!_initialClickIssued)
-                {
-                    if (tile.IsMine())
-                        _grid.SwapTileWithMineFreeTile(tile.GridPosition);
-
-                    _initialClickIssued = true;
-                    GetComponent<GameManager>().StartTimer();
-                }
-
-                else
-                {
-                    if(!Input.GetMouseButton(1))
-                        tile.Reveal();
-                }
-            }
-                
-        }
-
         // LEFT & RIGHT RELEASE: REVEAL NEIGHBORS IF ENOUGH NEIGHBOR FLAGGED
         if (_rightAndLeftPressed)
         {
             _grid.HighlightArea(tile.GridPosition);
-            if(!tile.IsRevealed() && !tile.IsFlagged())  tile.Highlight();
+            if (!tile.IsRevealed() && !tile.IsFlagged()) tile.Highlight();
             if (Input.GetMouseButtonUp(0) || Input.GetMouseButtonUp(1))
             {
                 _revealAreaIssued = true;
@@ -137,6 +114,32 @@ public class PlayerInput : MonoBehaviour {
                 }
             }
         }
+
+        // LEFT RELEASE: REVEAL
+        if (Input.GetMouseButtonUp(0) && !_revealAreaIssued)
+        {
+            if (!tile.IsFlagged() && !tile.IsRevealed())
+            {
+                if (!_initialClickIssued)
+                {
+                    if (tile.IsMine())
+                        _grid.SwapTileWithMineFreeTile(tile.GridPosition);
+
+                    _initialClickIssued = true;
+                    GetComponent<GameManager>().StartTimer();
+                    tile.Reveal();
+                }
+
+                else
+                {
+                    if(!Input.GetMouseButton(1))
+                        tile.Reveal();
+                }
+            }
+                
+        }
+
+        
 
         if (!Input.GetMouseButton(0) || !Input.GetMouseButton(1))
         {

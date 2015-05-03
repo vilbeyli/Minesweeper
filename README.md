@@ -3,6 +3,8 @@
 A 3D Minesweeper clone, made in Unity3D 4.6 with placeholder textures. The game has a global
 leaderboard and an options menu. I spent some time toying with UI elements.
 
+You can visit [my game portfolio](http://vilbeyli.github.io/games/), or
+
 **[Play Minesweeper on Web!](http://vilbeyli.github.io/Minesweeper)**
 
 ![Screenshot1](http://i.imgur.com/UFvoX1D.png)

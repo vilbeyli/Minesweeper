@@ -163,7 +163,7 @@ public class Tile : MonoBehaviour
         foreach (Vector2 pos in _neighborTilePositions)
         {
             Tile neighbor = _grid.Map[(int)pos.x][(int)pos.y];
-            if (!neighbor.IsRevealed())
+            if (!neighbor.IsRevealed() && !neighbor.IsFlagged())
                 neighbor.Reveal();
         }
     }

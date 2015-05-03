@@ -104,12 +104,14 @@ public class GameManager : MonoBehaviour
         {
             _scoreManager.PlayerScore = new Score(_endTime, _settings.Name);
 
-            // TODO: HIGHSCORES if score in top 10, ask user input, put on leaderboard
-
             // if score top 10 of its difficulty
-            if (true)
+            if (_scoreManager.PlayerScore.IsHighScore())
             {
                 UI.EnableScoreCanvas(_scoreManager.PlayerScore);
+            }
+            else
+            {
+                Debug.Log("NOT HIGH SCORE: " + _scoreManager.PlayerScore.TimePassed);
             }
         }
         

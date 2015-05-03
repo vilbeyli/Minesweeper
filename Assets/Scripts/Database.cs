@@ -50,8 +50,6 @@ public class Database : MonoBehaviour {
         }
 
         Debug.Log("DBRead: " + ScoreManager.DBReadSuccessful);
-
-        GetComponent<ScoreManager>().LoadScoresToUI();
     }
 
     IEnumerator ReadScoresFromDB(List<List<Score>> highScores)
@@ -62,7 +60,6 @@ public class Database : MonoBehaviour {
         if (GetScoresAttempt.error != null)
         {
             Debug.Log(string.Format("ERROR GETTING SCORES: {0}", GetScoresAttempt.error));
-            ScoreManager.DBReadSuccessful = false;
 
             highScores[1].Add(new Score("ERROR GETTING SCORES", -1));
         }
@@ -92,6 +89,7 @@ public class Database : MonoBehaviour {
                         break;
                 }
             }
+            GetComponent<ScoreManager>().LoadScoresToUI();
         }
         
     }
@@ -113,7 +111,7 @@ public class Database : MonoBehaviour {
             // NO ERROR - CONTINUE POST PROCESSING
             Debug.Log("SCORE POSTED SUCECSSFULLY!");
             GetComponent<GameManager>().UI.DisableScoreCanvas();
-            ScoreManager.DBReadSuccessful = false;
+            GetComponent<ScoreManager>().GetHighScores();
 
         }
         else

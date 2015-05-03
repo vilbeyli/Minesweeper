@@ -18,7 +18,6 @@ public class ScoreManager : MonoBehaviour
     public Text IntermediateScores;
     public Text ExpertScores;
 
-
     // private variables
     private List<List<Score>> _highScores;
     private float _nextDbAttempt;
@@ -26,11 +25,17 @@ public class ScoreManager : MonoBehaviour
 
     // public variables
     public float DBRetryInterval;
+    public int HighScoreDisplayCount;
 
     public Score PlayerScore
     {
         get { return _playerScore; }
         set { _playerScore = value; }
+    }
+
+    public List<List<Score>> HighScores
+    {
+        get { return _highScores; }
     }
 
 
@@ -39,15 +44,15 @@ public class ScoreManager : MonoBehaviour
 	
 	void Update () 
     {
-	    if (!DBReadSuccessful && Time.time > _nextDbAttempt)
+	    if (Time.time > _nextDbAttempt)
 	    {
 	        GetHighScores();
-	        _nextDbAttempt = Time.time + DBRetryInterval;
+            
 	    }
 	}
  
     // member functions
-    void GetHighScores()
+    public void GetHighScores()
     {
         // create highscore objects
         _highScores = new List<List<Score>>();
@@ -59,6 +64,8 @@ public class ScoreManager : MonoBehaviour
 
         //CreateDummyScores();
         GetComponent<Database>().GetScores(_highScores);
+
+        _nextDbAttempt = Time.time + DBRetryInterval;
 
     }
 
@@ -82,11 +89,16 @@ public class ScoreManager : MonoBehaviour
         String beginnerScoresText, intermediateScoresText, expertScoresText;
         beginnerScoresText = intermediateScoresText = expertScoresText = "";
 
-        for (int j = 0; j < _highScores[0].Count; j++)
+        Debug.Log("Loading scores to UI: " + _highScores[0].Count + ", " + _highScores[1].Count + ", " + _highScores[2].Count);
+
+
+        for (int j = 0; j < (HighScoreDisplayCount <= _highScores[0].Count ? HighScoreDisplayCount : _highScores[0].Count); j++)
             beginnerScoresText += HighScoreFormat(j, _highScores[0][j]);
-        for (int j = 0; j < _highScores[1].Count; j++)
+        
+        for (int j = 0; j < (HighScoreDisplayCount <= _highScores[1].Count ? HighScoreDisplayCount : _highScores[1].Count); j++)
             intermediateScoresText += HighScoreFormat(j, _highScores[1][j]);
-        for (int j = 0; j < _highScores[2].Count; j++)
+
+        for (int j = 0; j < (HighScoreDisplayCount <= _highScores[2].Count ? HighScoreDisplayCount : _highScores[2].Count); j++)
             expertScoresText += HighScoreFormat(j, _highScores[2][j]);
 
 
@@ -142,6 +154,8 @@ public class ScoreManager : MonoBehaviour
 [Serializable]
 public class Score
 {
+    private ScoreManager SM;
+
     private float _timePassed;
     private string _name;
     private string _difficulty;
@@ -172,13 +186,14 @@ public class Score
     {
         _timePassed = timePassed;
         _name = name;
-    }
+    }   // called when reading scores from DB
 
     public Score(float timePassed, string difficulty)
     {
         _timePassed = timePassed;
         _difficulty = difficulty;
-    }
+        SM = GameObject.FindGameObjectWithTag("GameManager").GetComponent<ScoreManager>();
+    }   // called when submitting score to DB
 
     public string print()
     {
@@ -189,5 +204,30 @@ public class Score
              + "Difficulty: " + _difficulty;
 
         return s;
+    }
+
+    public bool IsHighScore()
+    {
+        // if high scores are not read from DB
+        if (SM.HighScores[0].Count < 10 ||
+            SM.HighScores[1].Count < 10 ||
+            SM.HighScores[2].Count < 10)
+        {
+            return false;
+        }
+
+        // if scores are read from DB, compare timings with respective difficulty 
+        switch (_difficulty)
+        {
+            case "beginner":
+                return SM.HighScores[0][9].TimePassed > _timePassed;
+            case "intermediate":
+                return SM.HighScores[1][9].TimePassed > _timePassed;
+            case "expert":
+                return SM.HighScores[2][9].TimePassed > _timePassed;
+            default:
+                return false;
+        }
+        
     }
 }

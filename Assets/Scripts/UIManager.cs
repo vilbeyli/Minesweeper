@@ -185,6 +185,7 @@ public class UIManager : MonoBehaviour
         {
             GM.GetComponent<ScoreManager>().PostScore(name);
             DisableScoreCanvas();
+            if(_score.ScoreErrorCanvas.enabled) ToggleErrorMsg("");
         }
         else 
         {
@@ -216,9 +217,10 @@ public class UIManager : MonoBehaviour
         else if (s.Length > 10)         ToggleErrorMsg("Username cannot be longer than 10 characters");
     }
 
-    void ToggleErrorMsg(string err)
+    public void ToggleErrorMsg(string err)
     {
-        
+        _score.ScoreErrorText.text = err;
+        _score.ScoreErrorCanvas.enabled = !_score.ScoreErrorCanvas.enabled;
     }
 
     //-------------------------------------
@@ -389,8 +391,11 @@ public class HUDElements
 public class ScoreElements
 {
     [SerializeField] private Canvas _addScoreCanvas;
+    [SerializeField] private Canvas _scoreErrorCanvas;
     [SerializeField] private Text _nameInputText;
     [SerializeField] private Text _scoreText;
+    [SerializeField] private Text _scoreErrorText;
+    
 
     public Text ScoreText
     {
@@ -408,6 +413,18 @@ public class ScoreElements
     {
         get { return _nameInputText; }
         set { _nameInputText = value; }
+    }
+
+    public Text ScoreErrorText
+    {
+        get { return _scoreErrorText; }
+        set { _scoreErrorText = value; }
+    }
+
+    public Canvas ScoreErrorCanvas
+    {
+        get { return _scoreErrorCanvas; }
+        set { _scoreErrorCanvas = value; }
     }
 }
 

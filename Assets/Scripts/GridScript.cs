@@ -267,6 +267,7 @@ public class GridScript : MonoBehaviour
 
     public bool AreAllTilesRevealed()
     {
+        // check if all revealed
         foreach (List<Tile> row in _map)
         {
             foreach (Tile tile in row)
@@ -276,6 +277,17 @@ public class GridScript : MonoBehaviour
             }
         }
 
+
+        // if all revealed AND if not all mined tiles are flagged
+        // simply flag them
+        foreach (List<Tile> row in _map)
+        {
+            foreach (Tile tile in row)
+            {
+                if (tile.IsMine() && !tile.IsFlagged())
+                    tile.ToggleFlag();
+            }
+        }
         return true;
     }
     

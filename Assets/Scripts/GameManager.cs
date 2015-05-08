@@ -118,13 +118,16 @@ public class GameManager : MonoBehaviour
     public void GameOver(bool win)
     {
         IsGameOver = true;
+
+        _grid.RevealMines();
+
+        // HUD
         UI.HUD.GameStateText.enabled = true;
         UI.HUD.GameStateText.text = "Game: " + (win ? " Won" : " Lost");
         _endTime = Time.time - _startTime;
         Debug.Log("GAME WON:" + win + " | GAME ENDED IN " + _endTime + " SECONDS.");
         
-        // set time related data
-        //Time.timeScale = 0f;
+        // score
         IsGamePaused = true;
         if (win && _settings.Name != "custom") 
         {

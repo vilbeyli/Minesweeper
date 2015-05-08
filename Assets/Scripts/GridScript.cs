@@ -290,7 +290,20 @@ public class GridScript : MonoBehaviour
         }
         return true;
     }
-    
+
+    public void RevealMines()
+    {
+        foreach (List<Tile> row in _map)
+        {
+            foreach (Tile tile in row)
+            {
+                if (tile.IsMine() && !tile.IsFlagged() && !tile.IsRevealed())
+                    tile.GetComponent<Renderer>().material = tile.Materials[9]; // 9: mine
+                if (!tile.IsMine() && tile.IsFlagged())
+                    tile.GetComponent<Renderer>().material = tile.Materials[13]; // 13: flase flag
+            }
+        } 
+    }
 }
 
 [System.Serializable]

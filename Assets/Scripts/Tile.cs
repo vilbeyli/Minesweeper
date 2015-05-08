@@ -15,6 +15,8 @@ public class Tile : MonoBehaviour
     private const int  TILE_UNREVEALED = 11;
     private const int   TILE_HIGHLIGHT = 10;
     private const int        TILE_MINE = 9;
+    private const int  TILE_FALSE_FLAG = 13;
+    private const int TILE_MINE_PRESSED = 14;
 
     // handles
     private GridScript _grid;
@@ -96,23 +98,25 @@ public class Tile : MonoBehaviour
     }
 
     // member functions
-    public void Reveal()    
+    public void Reveal()
     {
+        _revealed = true;
+
         // if clicked on mine
         if (this.IsMine())
         {
-            PutOutLights();
+            //PutOutLights();
+            GetComponent<Renderer>().material = Materials[TILE_MINE_PRESSED];  
             GM.Detonate(this);
             GM.GameOver(false); // end game with negative result
         }
         else
         {
-            _revealed = true;
+            GetComponent<Renderer>().material = Materials[_tileValue];
             StartCoroutine("LightUp");
             if (_tileValue == 0)    RevealNeighbors();
         }
 
-        GetComponent<Renderer>().material = Materials[_tileValue];
 
         if(_grid.AreAllTilesRevealed())   GM.GameOver(true);
     }

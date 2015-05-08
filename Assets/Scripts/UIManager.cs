@@ -153,7 +153,7 @@ public class UIManager : MonoBehaviour
     // "Other Settings" Function Definitions
     public void BackgroundSliderUpdate(float val)
     {
-        GameObject.Find("Main Camera").GetComponent<Skybox>().material = Menu.Skyboxes[(int) val];
+        GameObject.Find("Skybox Camera").GetComponent<Skybox>().material = Menu.Skyboxes[(int) val];
     }
 
     //-----------------------------------------------------------

@@ -72,7 +72,6 @@ public class GameManager : MonoBehaviour
         Destroy(GameObject.Find("Grid(Clone)"));
         _gridtf = ((GameObject)Instantiate(GridPrefab, new Vector3(0, 0, 0), Quaternion.identity)).transform;
         _grid = _gridtf.GetComponent<GridScript>();
-        if (_grid == null) Debug.Log("_grid IS NULL!!");
 
         _settings = settings;
         _grid.GenerateMap(_settings);    // grid manager "_grid" generates the map with given settings
@@ -82,6 +81,33 @@ public class GameManager : MonoBehaviour
         
         ResetGameState();
         UI.ResetHUD(_flagCount);
+
+        GameObject.Find("Skybox Camera").GetComponent<SkyboxScript>().rotation = GetRandomVector();
+
+
+    }
+
+    Vector3 GetRandomVector()
+    {
+        Vector3 v = new Vector3();
+        int rnd = Random.Range(-3, 3);  // [-3, 2]
+
+        if (rnd == -3)
+            v.z = -1;
+        if (rnd == -2)
+            v.y = -1;
+        if (rnd == -1)
+            v.x = -1;
+        if (rnd == 0)
+            v.x = 1;
+        if (rnd == 1)
+            v.y = 1;
+        if (rnd == 2)
+            v.z = 1;
+
+        v *= 0.025f;
+
+        return v;
     }
 
     public void StartTimer()

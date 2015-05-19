@@ -305,13 +305,13 @@ public class UIManager : MonoBehaviour
     {
         
          
-        #if UNITY_WEBGL
+        //#if UNITY_WEBGL
             // opens link on new tab
             Application.ExternalEval("window.open('http://github.com/vilbeyli/Minesweeper'),'_blank')");
-        #else 
+        //#else 
             // Opens link on current tab
-            Application.OpenURL("http://github.com/vilbeyli/Minesweeper");
-        #endif
+            //Application.OpenURL("http://github.com/vilbeyli/Minesweeper");
+        //#endif
     }
 }
 

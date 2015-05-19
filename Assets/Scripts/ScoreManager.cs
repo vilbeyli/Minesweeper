@@ -14,9 +14,9 @@ public class ScoreManager : MonoBehaviour
     public static bool DBReadSuccessful;
 
     // handles
-    public Text BeginnerScores;
-    public Text IntermediateScores;
-    public Text ExpertScores;
+    public Text[] BeginnerScores;
+    public Text[] IntermediateScores;
+    public Text[] ExpertScores;
 
     // private variables
     private List<List<Score>> _highScores;
@@ -89,23 +89,46 @@ public class ScoreManager : MonoBehaviour
         String beginnerScoresText, intermediateScoresText, expertScoresText;
         beginnerScoresText = intermediateScoresText = expertScoresText = "";
 
+        String beginnerScoresValue, intermediateScoresValue, expertScoresValue;
+        beginnerScoresValue = intermediateScoresValue = expertScoresValue = "";
+
         Debug.Log("Loading scores to UI: " + _highScores[0].Count + ", " + _highScores[1].Count + ", " + _highScores[2].Count);
 
 
-        for (int j = 0; j < (HighScoreDisplayCount <= _highScores[0].Count ? HighScoreDisplayCount : _highScores[0].Count); j++)
+        for (int j = 0;
+            j < (HighScoreDisplayCount <= _highScores[0].Count ? HighScoreDisplayCount : _highScores[0].Count);
+            j++)
+        {
             beginnerScoresText += HighScoreFormat(j, _highScores[0][j]);
-        
-        for (int j = 0; j < (HighScoreDisplayCount <= _highScores[1].Count ? HighScoreDisplayCount : _highScores[1].Count); j++)
-            intermediateScoresText += HighScoreFormat(j, _highScores[1][j]);
+            beginnerScoresValue += _highScores[0][j].TimePassed.ToString("0.00") + "\n\n";
+        }
 
-        for (int j = 0; j < (HighScoreDisplayCount <= _highScores[2].Count ? HighScoreDisplayCount : _highScores[2].Count); j++)
+        for (int j = 0;
+            j < (HighScoreDisplayCount <= _highScores[1].Count ? HighScoreDisplayCount : _highScores[1].Count);
+            j++)
+        {
+            intermediateScoresText += HighScoreFormat(j, _highScores[1][j]);
+            intermediateScoresValue += _highScores[1][j].TimePassed.ToString("0.00") + "\n\n";
+        }
+
+        for (int j = 0;
+            j < (HighScoreDisplayCount <= _highScores[2].Count ? HighScoreDisplayCount : _highScores[2].Count);
+            j++)
+        {
             expertScoresText += HighScoreFormat(j, _highScores[2][j]);
+            expertScoresValue += _highScores[2][j].TimePassed.ToString("0.00") + "\n\n";
+        
+        }
 
 
         // update UI elements' text fields
-        BeginnerScores.text = beginnerScoresText;
-        IntermediateScores.text = intermediateScoresText;
-        ExpertScores.text = expertScoresText;
+        BeginnerScores[0].text = beginnerScoresText;
+        IntermediateScores[0].text = intermediateScoresText;
+        ExpertScores[0].text = expertScoresText;
+
+        BeginnerScores[1].text = beginnerScoresValue;
+        IntermediateScores[1].text = intermediateScoresValue;
+        ExpertScores[1].text = expertScoresValue;
     }
 
     string HighScoreFormat(int i, Score score)
@@ -120,14 +143,14 @@ public class ScoreManager : MonoBehaviour
             case 1:
             case 2:
             case 3:
-            case 4:
                 s += "\t\t\t\t";
                 break;
+            case 4:
             case 5:
             case 6:
+            case 7:
                 s += "\t\t\t";
                 break;
-            case 7:
             case 8:
             case 9:
                 s += "\t\t";
@@ -137,7 +160,8 @@ public class ScoreManager : MonoBehaviour
                 break;
         }
 
-        s += score.TimePassed.ToString("0.00") + "\n\n";
+        // score.TimePassed.ToString("0.00") + 
+        s += "\n\n";
 
         return s;
     }

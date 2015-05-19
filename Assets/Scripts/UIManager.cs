@@ -300,6 +300,11 @@ public class UIManager : MonoBehaviour
         UpdateFlagText(flagCount);
         UpdateTimeText(0);   
     }
+
+    public void SourceCode()
+    {
+        Application.OpenURL("http://github.com/vilbeyli/Minesweeper");
+    }
 }
 
 [Serializable]

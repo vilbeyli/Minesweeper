@@ -120,6 +120,12 @@ public class ScoreManager : MonoBehaviour
         
         }
 
+        beginnerScoresText = beginnerScoresText.Substring(0, beginnerScoresText.Length - 2);
+        intermediateScoresText = intermediateScoresText.Substring(0, intermediateScoresText.Length - 2);
+        expertScoresText = expertScoresText.Substring(0, expertScoresText.Length - 2);
+        beginnerScoresValue = beginnerScoresValue.Substring(0, beginnerScoresValue.Length - 2);
+        intermediateScoresValue = intermediateScoresValue.Substring(0, intermediateScoresValue.Length - 2);
+        expertScoresValue = expertScoresValue.Substring(0, expertScoresValue.Length - 2);
 
         // update UI elements' text fields
         BeginnerScores[0].text = beginnerScoresText;
@@ -137,7 +143,8 @@ public class ScoreManager : MonoBehaviour
         string s = "\t" + (i+1);      
         s += i == 9 ? "\t" : "\t\t";   // use 1 tab on 2 digits (i==9)
         s += score.Name;
-
+        
+        /*
         switch (score.Name.Length)
         {
             case 1:
@@ -159,6 +166,7 @@ public class ScoreManager : MonoBehaviour
                 s += "\t";
                 break;
         }
+        */
 
         // score.TimePassed.ToString("0.00") + 
         s += "\n\n";
